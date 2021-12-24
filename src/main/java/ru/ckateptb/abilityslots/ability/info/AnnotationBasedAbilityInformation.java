@@ -43,6 +43,11 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     }
 
     @Override
+    public String getFormattedName() {
+        return this.category.getPrefix() + this.displayName;
+    }
+
+    @Override
     @SneakyThrows
     public Ability createAbility() {
         return abilityClass.getConstructor().newInstance();

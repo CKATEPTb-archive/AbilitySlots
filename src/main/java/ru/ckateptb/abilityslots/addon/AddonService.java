@@ -2,19 +2,17 @@ package ru.ckateptb.abilityslots.addon;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
-import ru.ckateptb.abilityslots.ability.AbilityService;
+import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
-import ru.ckateptb.abilityslots.category.CategoryService;
-import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,11 +32,11 @@ import java.util.stream.Collectors;
 public class AddonService {
     private final AbilitySlots plugin = AbilitySlots.getInstance();
     private final List<Class<?>> loadedClasses = new ArrayList<>();
-    private final CategoryService categoryService;
+    private final AbilityCategoryService abilityCategoryService;
     private final AbilityService abilityService;
 
-    public AddonService(CategoryService categoryService, AbilityService abilityService) {
-        this.categoryService = categoryService;
+    public AddonService(AbilityCategoryService abilityCategoryService, AbilityService abilityService) {
+        this.abilityCategoryService = abilityCategoryService;
         this.abilityService = abilityService;
         this.loadAddons();
     }
@@ -83,7 +81,7 @@ public class AddonService {
                     }
                     if (abilityCategory != null) {
                         log.info("Found a new category for abilities ({})", abilityCategory.getName());
-                        categoryService.registerCategory(abilityCategory);
+                        abilityCategoryService.registerCategory(abilityCategory);
                     }
                 }
             }
@@ -101,7 +99,7 @@ public class AddonService {
                             log.warn("Found a new ability ({}), but the developer made a mistake and did not add any ActivationMethod in AbilityInfo annotation, please pass this information to him", cl.getName());
                         } else {
                             String categoryName = abilityInfo.category();
-                            AbilityCategory category = categoryService.getCategory(categoryName);
+                            AbilityCategory category = abilityCategoryService.getCategory(categoryName);
                             if (category == null) {
                                 log.warn("Found a new ability ({}), but the category ({}) specified by the developer does not exist, please pass this information to him", cl.getName(), categoryName);
                             } else {

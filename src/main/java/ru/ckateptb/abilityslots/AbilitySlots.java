@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
-import ru.ckateptb.abilityslots.ability.AbilityService;
-import ru.ckateptb.abilityslots.category.CategoryService;
+import ru.ckateptb.abilityslots.service.AbilityService;
+import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
@@ -25,7 +25,7 @@ public final class AbilitySlots extends SpringPlugin {
     @Override
     public void onEnable() {
         super.onEnable();
-        getContext().getBean(CategoryService.class).getCategories().forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
+        getContext().getBean(AbilityCategoryService.class).getCategories().forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
         getContext().getBean(AbilityService.class).getAbilities().forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
         AbilitySlotsConfig abilitySlotsConfig = getContext().getBean(AbilitySlotsConfig.class);
         abilitySlotsConfig.load();

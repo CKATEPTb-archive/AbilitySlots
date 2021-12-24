@@ -1,4 +1,4 @@
-package ru.ckateptb.abilityslots.ability;
+package ru.ckateptb.abilityslots.service;
 
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
