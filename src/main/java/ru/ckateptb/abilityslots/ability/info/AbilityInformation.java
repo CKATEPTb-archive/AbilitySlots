@@ -21,6 +21,8 @@ public interface AbilityInformation extends Listener {
 
     String getDisplayName();
 
+    String getFormattedName();
+
     void setDisplayName(String displayName);
 
     String getDescription();
