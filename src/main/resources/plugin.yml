@@ -1,0 +1,7 @@
+name: AbilitySlots
+version: '${version}'
+main: ru.ckateptb.abilityslots.AbilitySlots
+api-version: 1.17
+depend: [ Tablecloth, CommandAPI ]
+authors: [ CKATEPTb ]
+description: Ability manager. Craft and use passive, combo, and slot-based abilities.
