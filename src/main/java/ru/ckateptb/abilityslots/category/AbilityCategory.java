@@ -29,6 +29,8 @@ public interface AbilityCategory extends Listener {
 
     Collection<AbilityInformation> getAbilities();
 
+    AbilityInformation getAbility(String name);
+
     void registerAbility(AbilityInformation ability);
 
     @SneakyThrows
