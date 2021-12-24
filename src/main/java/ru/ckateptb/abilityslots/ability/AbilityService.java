@@ -2,22 +2,25 @@ package ru.ckateptb.abilityslots.ability;
 
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.category.CategoryService;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AbilityService {
-    private final CategoryService categoryService;
+    private final Map<String, AbilityInformation> abilities = new HashMap<>();
 
-    public AbilityService(CategoryService categoryService) {
-        this.categoryService = categoryService;
+    public void registerAbility(AbilityInformation ability) {
+        abilities.put(ability.getName(), ability);
     }
 
-    public List<AbilityInformation> getAbilities() {
-        List<AbilityInformation> abilities = new ArrayList<>();
-        categoryService.getCategories().forEach(category -> abilities.addAll(category.getAbilities()));
-        return abilities;
+    public AbilityInformation getAbility(String name) {
+        return abilities.get(name);
+    }
+
+    public Collection<AbilityInformation> getAbilities() {
+        return Collections.unmodifiableCollection(abilities.values());
     }
 }

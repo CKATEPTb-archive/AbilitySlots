@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
+import ru.ckateptb.abilityslots.ability.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
@@ -33,12 +34,12 @@ import java.util.stream.Collectors;
 public class AddonService {
     private final AbilitySlots plugin = AbilitySlots.getInstance();
     private final List<Class<?>> loadedClasses = new ArrayList<>();
-    private final AbilitySlotsConfig config;
     private final CategoryService categoryService;
+    private final AbilityService abilityService;
 
-    public AddonService(AbilitySlotsConfig config, CategoryService categoryService) {
-        this.config = config;
+    public AddonService(CategoryService categoryService, AbilityService abilityService) {
         this.categoryService = categoryService;
+        this.abilityService = abilityService;
         this.loadAddons();
     }
 
@@ -107,6 +108,7 @@ public class AddonService {
                                 AnnotationBasedAbilityInformation ability = new AnnotationBasedAbilityInformation(abilityInfo, category, (Class<? extends Ability>) cl);
                                 log.info("Found a new ability ({})", ability.getName());
                                 category.registerAbility(ability);
+                                abilityService.registerAbility(ability);
                             }
                         }
                     }
