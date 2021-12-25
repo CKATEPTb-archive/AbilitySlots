@@ -3,9 +3,12 @@ package ru.ckateptb.abilityslots.ability.info;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.bukkit.ChatColor;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
+import ru.ckateptb.abilityslots.user.AbilityUser;
+import ru.ckateptb.abilityslots.util.TimeUtil;
 
 import java.util.Arrays;
 
@@ -46,7 +49,26 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
 
     @Override
     public String getFormattedName() {
-        return this.category.getPrefix() + this.displayName;
+        return getFormattedNameForUser(null);
+    }
+
+    @Override
+    public String getFormattedNameForUser(AbilityUser user) {
+        StringBuilder builder = new StringBuilder();
+        String prefix = this.category.getPrefix();
+        builder.append(prefix);
+        if (user != null && user.hasCooldown(this)) {
+            long cooldown = user.getCooldowns().get(this) - System.currentTimeMillis();
+            return builder
+                    .append(ChatColor.STRIKETHROUGH)
+                    .append(this.getDisplayName())
+                    .append(ChatColor.RESET)
+                    .append(prefix)
+                    .append(" - ")
+                    .append(TimeUtil.formatTime(cooldown))
+                    .toString();
+        }
+        return builder.append(this.displayName).toString();
     }
 
     @Override

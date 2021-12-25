@@ -8,6 +8,7 @@ import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
 import ru.ckateptb.tablecloth.spring.SpringContext;
@@ -22,6 +23,8 @@ public interface AbilityInformation extends Listener {
     String getDisplayName();
 
     String getFormattedName();
+
+    String getFormattedNameForUser(AbilityUser user);
 
     void setDisplayName(String displayName);
 

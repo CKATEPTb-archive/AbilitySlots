@@ -7,11 +7,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
-import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
-import ru.ckateptb.abilityslots.util.TimeUtil;
 
 import java.util.*;
 
@@ -40,7 +39,7 @@ public class AbilityBoard {
     }
 
     public void update() {
-        if(player == null || !player.isOnline()) return;
+        if (player == null || !player.isOnline()) return;
         if (!enabled || !config.isBoardEnabled() || !player.hasPermission("abilityslots.board.display")) {
             if (player.getScoreboard() == scoreboard) {
                 player.setScoreboard(scoreboardManager.getMainScoreboard());
@@ -78,18 +77,7 @@ public class AbilityBoard {
             if (ability == null) {
                 sb.append(config.getBoardEmptySlot());
             } else {
-                sb.append(ability.getCategory().getPrefix());
-                if (user.hasCooldown(ability)) {
-                    long cooldown = user.getCooldowns().get(ability) - System.currentTimeMillis();
-                    sb.append(ChatColor.STRIKETHROUGH)
-                            .append(ability.getDisplayName())
-                            .append(ChatColor.RESET)
-                            .append(ability.getCategory().getPrefix())
-                            .append(" - ")
-                            .append(TimeUtil.formatTime(cooldown));
-                } else {
-                sb.append(ability.getDisplayName());
-                }
+                sb.append(ability.getFormattedNameForUser(user));
             }
 
             updatedScores.add(sb.toString());
@@ -108,22 +96,10 @@ public class AbilityBoard {
         for (AbilityInformation ability : abilityService.getAbilities()) {
             if (ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
                 if (user.hasCooldown(ability)) {
-                    String name = getUniquePrefix(slotIndex);
-
-                    long cooldown = user.getCooldowns().get(ability) - System.currentTimeMillis();
-                    name += ability.getCategory().getPrefix();
-                    name += ChatColor.STRIKETHROUGH;
-                    name += ability.getDisplayName();
-                    name += (ChatColor.RESET);
-                    name += ability.getCategory().getPrefix();
-                    name += (" - ");
-                    name += (TimeUtil.formatTime(cooldown));
-
                     if (updates.isEmpty()) {
                         updates.add(ChatColor.BOLD + "Sequences");
                     }
-
-                    updates.add(name);
+                    updates.add(getUniquePrefix(slotIndex) + ability.getFormattedNameForUser(user));
                 }
             }
         }
