@@ -6,6 +6,7 @@ import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.io.Serializable;
 
+//TODO не нрав мне эта херня, ее бы переделать. В идеале сделать сериализер для ORM
 public class AbilitySlotContainerConverter implements Serializable {
     private final String[] slots = new String[9];
 
