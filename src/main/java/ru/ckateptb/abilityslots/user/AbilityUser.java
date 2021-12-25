@@ -22,6 +22,8 @@ public interface AbilityUser {
         return getSlotContainer().getAbility(slot);
     }
 
+    AbilityInformation getSelectedAbility();
+
     void clearAbilities();
 
     default void setAbility(int slot, AbilityInformation ability) {

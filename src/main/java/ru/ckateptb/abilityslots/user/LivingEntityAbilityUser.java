@@ -46,6 +46,11 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
     }
 
     @Override
+    public AbilityInformation getSelectedAbility() {
+        return null;
+    }
+
+    @Override
     public void clearAbilities() {
         for (int i = 1; i <= 9; i++) {
             setAbility(i, null);

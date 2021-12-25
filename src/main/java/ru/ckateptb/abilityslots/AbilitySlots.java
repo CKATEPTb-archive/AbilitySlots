@@ -10,6 +10,15 @@ import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
 @Slf4j
+//TODO Сделать собственную реализацию AbilityInstanceService (внутри AbilityService)
+//TODO Сделать в Tablecloth API для Collision
+//TODO Сделать команды для взаимодействия с плагином
+//TODO Сделать Аннотацию Sequence которая будет регистрировать комбинации
+//TODO Сделать Аннотацию Collision которая будет регистрировать коллизии
+//TODO Сделать команду reload, которая будет перезагружать плагин
+//TODO Добавить собственные события
+//TODO Пересмотреть код, может что улучшить, добавить, оптимизировать
+//TODO Сделать Адон по мотивам Avatar (ProjectKorra), вынося необходимое в Tablecloth
 public final class AbilitySlots extends SpringPlugin {
     @Getter
     private static AbilitySlots instance;

@@ -5,22 +5,25 @@ import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
+import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 
 public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private final AbilityBoard abilityBoard;
     private final EnergyBar energyBar;
 
-    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService) {
+    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
         super(livingEntity);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
+        abilityInstanceService.createPassives(this);
     }
 
     public int getHeldItemSlot() {
         return getEntity().getInventory().getHeldItemSlot() + 1;
     }
 
+    @Override
     public AbilityInformation getSelectedAbility() {
         return slotContainer.getAbility(getHeldItemSlot());
     }

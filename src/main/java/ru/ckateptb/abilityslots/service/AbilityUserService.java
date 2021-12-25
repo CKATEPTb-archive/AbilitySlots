@@ -33,13 +33,13 @@ public class AbilityUserService implements Listener {
     private final AbilitySlotsStorage storage;
     private final AbilitySlotsConfig config;
     private final AbilityService abilityService;
-    private final AsyncService asyncService;
+    private final AbilityInstanceService abilityInstanceService;
 
-    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AsyncService asyncService) {
+    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
         this.storage = storage;
         this.config = config;
         this.abilityService = abilityService;
-        this.asyncService = asyncService;
+        this.abilityInstanceService = abilityInstanceService;
     }
 
     public PlayerAbilityUser getAbilityPlayer(Player player) {
@@ -68,7 +68,7 @@ public class AbilityUserService implements Listener {
     @EventHandler
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService);
+        PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService);
         user.enableAbilityBoard();
         user.enableEnergyBar();
         users.put(player, user);
