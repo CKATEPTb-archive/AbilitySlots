@@ -1,7 +1,7 @@
 package ru.ckateptb.abilityslots.slot;
 
-import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.io.Serializable;

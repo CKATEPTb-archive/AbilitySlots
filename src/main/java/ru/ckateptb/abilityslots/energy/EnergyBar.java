@@ -26,7 +26,7 @@ public class EnergyBar {
     }
 
     public void update() {
-        if(player == null || !player.isOnline()) return;
+        if (player == null || !player.isOnline()) return;
         if (!enabled || config.getCastPreventType() == AbilityCastPreventType.COOLDOWN || !player.hasPermission("abilityslots.energybar.display")) {
             if (this.bossBar.getPlayers().contains(player)) {
                 this.bossBar.removePlayer(player);

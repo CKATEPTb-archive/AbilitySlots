@@ -13,11 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder, EnergyHolder {
-    private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
-    private CompositeAbilityActivateConditional abilityActivateConditional = new CompositeAbilityActivateConditional();
-
     protected final LivingEntity livingEntity;
+    private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
+    private CompositeAbilityActivateConditional abilityActivateConditional = new CompositeAbilityActivateConditional();
 
     public LivingEntityAbilityUser(LivingEntity livingEntity) {
         this.livingEntity = livingEntity;

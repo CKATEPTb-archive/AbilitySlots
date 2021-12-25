@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
-import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.service.AbilityCategoryService;
+import ru.ckateptb.abilityslots.service.AbilityService;
 
 import java.io.File;
 import java.io.FileInputStream;

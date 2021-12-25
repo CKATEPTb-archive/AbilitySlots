@@ -4,7 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Setter
 @Getter

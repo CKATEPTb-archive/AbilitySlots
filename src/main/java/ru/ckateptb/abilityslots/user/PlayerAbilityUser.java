@@ -1,11 +1,11 @@
 package ru.ckateptb.abilityslots.user;
 
 import org.bukkit.entity.Player;
-import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
+import ru.ckateptb.abilityslots.service.AbilityService;
 
 public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private final AbilityBoard abilityBoard;

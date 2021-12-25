@@ -1,41 +1,31 @@
 package ru.ckateptb.abilityslots.addon;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.io.ByteSource;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
 import com.google.common.reflect.Reflection;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Scans the source of a {@link ClassLoader} and finds all loadable classes and resources.
@@ -58,7 +48,9 @@ public final class ClassPath {
                 }
             };
 
-    /** Separator for the Class-Path manifest attribute value in jar files. */
+    /**
+     * Separator for the Class-Path manifest attribute value in jar files.
+     */
     private static final Splitter CLASS_PATH_ATTRIBUTE_SEPARATOR =
             Splitter.on(" ").omitEmptyStrings();
 
@@ -78,7 +70,7 @@ public final class ClassPath {
      * supported.
      *
      * @throws IOException if the attempt to read class path resources (jar files or directories)
-     *     failed.
+     *                     failed.
      */
     public static ClassPath from(ClassLoader classloader) throws IOException {
         DefaultScanner scanner = new DefaultScanner();
@@ -90,6 +82,12 @@ public final class ClassPath {
         DefaultScanner scanner = new DefaultScanner();
         scanner.scanJarFile(classloader, jarFile);
         return new ClassPath(scanner.getResources());
+    }
+
+    @VisibleForTesting
+    static String getClassName(String filename) {
+        int classNameEnd = filename.length() - CLASS_FILE_NAME_EXTENSION.length();
+        return filename.substring(0, classNameEnd).replace('/', '.');
     }
 
     /**
@@ -109,12 +107,16 @@ public final class ClassPath {
         return FluentIterable.from(resources).filter(ClassInfo.class).toSet();
     }
 
-    /** Returns all top level classes loadable from the current class path. */
+    /**
+     * Returns all top level classes loadable from the current class path.
+     */
     public ImmutableSet<ClassInfo> getTopLevelClasses() {
         return FluentIterable.from(resources).filter(ClassInfo.class).filter(IS_TOP_LEVEL).toSet();
     }
 
-    /** Returns all top level classes whose package name is {@code packageName}. */
+    /**
+     * Returns all top level classes whose package name is {@code packageName}.
+     */
     public ImmutableSet<ClassInfo> getTopLevelClasses(String packageName) {
         checkNotNull(packageName);
         ImmutableSet.Builder<ClassInfo> builder = ImmutableSet.builder();
@@ -150,9 +152,13 @@ public final class ClassPath {
      */
     @Beta
     public static class ResourceInfo {
+        final ClassLoader loader;
         private final String resourceName;
 
-        final ClassLoader loader;
+        ResourceInfo(String resourceName, ClassLoader loader) {
+            this.resourceName = checkNotNull(resourceName);
+            this.loader = checkNotNull(loader);
+        }
 
         static ResourceInfo of(String resourceName, ClassLoader loader) {
             if (resourceName.endsWith(CLASS_FILE_NAME_EXTENSION)) {
@@ -162,18 +168,13 @@ public final class ClassPath {
             }
         }
 
-        ResourceInfo(String resourceName, ClassLoader loader) {
-            this.resourceName = checkNotNull(resourceName);
-            this.loader = checkNotNull(loader);
-        }
-
         /**
          * Returns the url identifying the resource.
          *
          * <p>See {@link ClassLoader#getResource}
          *
          * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *     despite physically existing in the class path.
+         *                                despite physically existing in the class path.
          */
         public final URL url() {
             URL url = loader.getResource(resourceName);
@@ -187,7 +188,7 @@ public final class ClassPath {
          * Returns a {@link ByteSource} view of the resource from which its bytes can be read.
          *
          * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *     despite physically existing in the class path.
+         *                                despite physically existing in the class path.
          * @since 20.0
          */
         public final ByteSource asByteSource() {
@@ -199,14 +200,16 @@ public final class ClassPath {
          * characters decoded with the given {@code charset}.
          *
          * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *     despite physically existing in the class path.
+         *                                despite physically existing in the class path.
          * @since 20.0
          */
         public final CharSource asCharSource(Charset charset) {
             return Resources.asCharSource(url(), charset);
         }
 
-        /** Returns the fully qualified name of the resource. Such as "com/mycomp/foo/bar.txt". */
+        /**
+         * Returns the fully qualified name of the resource. Such as "com/mycomp/foo/bar.txt".
+         */
         public final String getResourceName() {
             return resourceName;
         }
@@ -293,7 +296,7 @@ public final class ClassPath {
          * Loads (but doesn't link or initialize) the class.
          *
          * @throws LinkageError when there were errors in loading classes that this class depends on.
-         *     For example, {@link NoClassDefFoundError}.
+         *                      For example, {@link NoClassDefFoundError}.
          */
         public Class<?> load() {
             try {
@@ -320,62 +323,6 @@ public final class ClassPath {
         // We only scan each file once independent of the classloader that resource might be associated
         // with.
         private final Set<File> scannedUris = Sets.newHashSet();
-
-        public final void scan(ClassLoader classloader) throws IOException {
-            for (Map.Entry<File, ClassLoader> entry : getClassPathEntries(classloader).entrySet()) {
-                scan(entry.getKey(), entry.getValue());
-            }
-        }
-
-        /** Called when a directory is scanned for resource files. */
-        protected abstract void scanDirectory(ClassLoader loader, File directory) throws IOException;
-
-        /** Called when a jar file is scanned for resource entries. */
-        protected abstract void scanJarFile(ClassLoader loader, JarFile file) throws IOException;
-
-        @VisibleForTesting
-        final void scan(File file, ClassLoader classloader) throws IOException {
-            if (scannedUris.add(file.getCanonicalFile())) {
-                scanFrom(file, classloader);
-            }
-        }
-
-        private void scanFrom(File file, ClassLoader classloader) throws IOException {
-            try {
-                if (!file.exists()) {
-                    return;
-                }
-            } catch (SecurityException e) {
-                logger.warning("Cannot access " + file + ": " + e);
-                return;
-            }
-            if (file.isDirectory()) {
-                scanDirectory(classloader, file);
-            } else {
-                scanJar(file, classloader);
-            }
-        }
-
-        private void scanJar(File file, ClassLoader classloader) throws IOException {
-            JarFile jarFile;
-            try {
-                jarFile = new JarFile(file);
-            } catch (IOException e) {
-                // Not a jar file
-                return;
-            }
-            try {
-                for (File path : getClassPathFromManifest(file, jarFile.getManifest())) {
-                    scan(path, classloader);
-                }
-                scanJarFile(classloader, jarFile);
-            } finally {
-                try {
-                    jarFile.close();
-                } catch (IOException ignored) {
-                }
-            }
-        }
 
         /**
          * Returns the class path URIs specified by the {@code Class-Path} manifest attribute, according
@@ -442,6 +389,66 @@ public final class ClassPath {
         static URL getClassPathEntry(File jarFile, String path) throws MalformedURLException {
             return new URL(jarFile.toURI().toURL(), path);
         }
+
+        public final void scan(ClassLoader classloader) throws IOException {
+            for (Map.Entry<File, ClassLoader> entry : getClassPathEntries(classloader).entrySet()) {
+                scan(entry.getKey(), entry.getValue());
+            }
+        }
+
+        /**
+         * Called when a directory is scanned for resource files.
+         */
+        protected abstract void scanDirectory(ClassLoader loader, File directory) throws IOException;
+
+        /**
+         * Called when a jar file is scanned for resource entries.
+         */
+        protected abstract void scanJarFile(ClassLoader loader, JarFile file) throws IOException;
+
+        @VisibleForTesting
+        final void scan(File file, ClassLoader classloader) throws IOException {
+            if (scannedUris.add(file.getCanonicalFile())) {
+                scanFrom(file, classloader);
+            }
+        }
+
+        private void scanFrom(File file, ClassLoader classloader) throws IOException {
+            try {
+                if (!file.exists()) {
+                    return;
+                }
+            } catch (SecurityException e) {
+                logger.warning("Cannot access " + file + ": " + e);
+                return;
+            }
+            if (file.isDirectory()) {
+                scanDirectory(classloader, file);
+            } else {
+                scanJar(file, classloader);
+            }
+        }
+
+        private void scanJar(File file, ClassLoader classloader) throws IOException {
+            JarFile jarFile;
+            try {
+                jarFile = new JarFile(file);
+            } catch (IOException e) {
+                // Not a jar file
+                return;
+            }
+            try {
+                for (File path : getClassPathFromManifest(file, jarFile.getManifest())) {
+                    scan(path, classloader);
+                }
+                scanJarFile(classloader, jarFile);
+            } finally {
+                try {
+                    jarFile.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     @VisibleForTesting
@@ -494,11 +501,5 @@ public final class ClassPath {
                 }
             }
         }
-    }
-
-    @VisibleForTesting
-    static String getClassName(String filename) {
-        int classNameEnd = filename.length() - CLASS_FILE_NAME_EXTENSION.length();
-        return filename.substring(0, classNameEnd).replace('/', '.');
     }
 }

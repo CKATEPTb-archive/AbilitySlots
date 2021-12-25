@@ -22,11 +22,11 @@ public interface AbilityInformation extends Listener {
 
     String getDisplayName();
 
+    void setDisplayName(String displayName);
+
     String getFormattedName();
 
     String getFormattedNameForUser(AbilityUser user);
-
-    void setDisplayName(String displayName);
 
     String getDescription();
 
