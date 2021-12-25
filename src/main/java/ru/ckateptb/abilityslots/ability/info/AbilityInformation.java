@@ -45,6 +45,8 @@ public interface AbilityInformation extends Listener {
 
     ActivationMethod[] getActivationMethods();
 
+    boolean isHidden();
+
     String getAuthor();
 
     AbilityCategory getCategory();

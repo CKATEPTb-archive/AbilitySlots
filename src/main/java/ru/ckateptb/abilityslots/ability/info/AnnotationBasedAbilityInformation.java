@@ -23,6 +23,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     private String displayName;
     private String description;
     private String instruction;
+    private boolean hidden;
 
     public AnnotationBasedAbilityInformation(AbilityInfo abilityInfo, AbilityCategory abilityCategory, Class<? extends Ability> abilityClass) {
         this.name = abilityInfo.name();
@@ -33,6 +34,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
         this.instruction = abilityInfo.instruction();
         this.cooldown = abilityInfo.cooldown();
         this.cost = abilityInfo.cost();
+        this.hidden = abilityInfo.hidden();
         this.author = abilityInfo.author();
         this.activationMethods = abilityInfo.activationMethods();
     }

@@ -6,20 +6,27 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AbilityInfo {
     String name();
+
     String displayName();
+
     String category();
+
     String description();
+
     String instruction();
+
     long cooldown() default 0;
+
     int cost() default 0;
+
     String author();
+
     ActivationMethod[] activationMethods();
+
+    boolean hidden() default false;
 }
