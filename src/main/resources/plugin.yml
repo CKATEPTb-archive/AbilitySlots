@@ -5,3 +5,19 @@ api-version: 1.17
 depend: [ Tablecloth, CommandAPI ]
 authors: [ CKATEPTb ]
 description: Ability manager. Craft and use passive, combo, and slot-based abilities.
+permissions:
+  abilityslots.*:
+    default: op
+    description: Gives the player full access to the plugin functionality
+  abilityslots.energybar.display:
+    default: true
+    description: Players with this permission will see the ability energy display in the bossbar
+  abilityslots.board.display:
+    default: true
+    description: Players with this permission will see the ability board on the scoreboard.
+  abilityslots.abilities.categoryname:
+    default: false
+    description: Replace categoryname with the name of an existing category. Players with this permission can use abilities of this category.
+  abilityslots.abilities.categoryname.abilityname:
+    default: false
+    description: Replace categoryname with the name of an existing category. Replace abilityname with the name of an existing ability. Players with this permission can use current ability.
