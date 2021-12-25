@@ -37,6 +37,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
         this.instruction = abilityInfo.instruction();
         this.cooldown = abilityInfo.cooldown();
         this.cost = abilityInfo.cost();
+        this.enabled = true;
         this.hidden = abilityInfo.hidden();
         this.author = abilityInfo.author();
         this.activationMethods = abilityInfo.activationMethods();

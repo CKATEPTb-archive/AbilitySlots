@@ -31,6 +31,6 @@ public class AbilityService {
     }
 
     public Collection<AbilityInformation> getPassiveAbilities() {
-        return Collections.unmodifiableCollection(abilities.values());
+        return Collections.unmodifiableCollection(passives.values());
     }
 }
