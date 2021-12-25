@@ -8,7 +8,6 @@ import ru.ckateptb.abilityslots.board.AbilityBoardHolder;
 import ru.ckateptb.abilityslots.energy.EnergyHolder;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
-import ru.ckateptb.abilityslots.slot.EmptyAbilitySlotContainer;
 
 import java.util.HashMap;
 import java.util.Map;
