@@ -9,14 +9,28 @@ import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
+import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
+import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
+import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
+import ru.ckateptb.abilityslots.storage.PlayerAbilityTable;
+import ru.ckateptb.tablecloth.storage.ormlite.dao.Dao;
+
+import java.sql.SQLException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PlayerAbilityUser extends LivingEntityAbilityUser {
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final AbilityBoard abilityBoard;
     @Getter
     private final EnergyBar energyBar;
     private final CompositeAbilityConditional abilityBindConditional = new CompositeAbilityConditional();
+    private final Dao<PlayerAbilityTable, String> abilityStorage;
+    private final String uuid;
 
-    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
+    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage) {
         super(livingEntity);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
@@ -26,6 +40,9 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
                 new CanBindToSlotAbilityConditional(),
                 new PermissionAbilityConditional()
         );
+        this.abilityStorage = storage.getPlayerAbilityTables();
+        this.uuid = livingEntity.getUniqueId().toString();
+        this.loadAbilityStorageAsync();
         abilityInstanceService.createPassives(this);
     }
 
@@ -100,5 +117,43 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     @Override
     public Player getEntity() {
         return (Player) livingEntity;
+    }
+
+    @Override
+    public void setAbility(int slot, AbilityInformation ability) {
+        super.setAbility(slot, ability);
+        this.saveAbilityStorageAsync();
+    }
+
+    @Override
+    public void setSlotContainer(AbilitySlotContainer slotContainer) {
+        super.setSlotContainer(slotContainer);
+        slotContainer.validate(this);
+        this.saveAbilityStorageAsync();
+    }
+
+    @Override
+    public void clearAbilities() {
+        super.clearAbilities();
+    }
+
+    public void saveAbilityStorageAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                abilityStorage.createOrUpdate(new PlayerAbilityTable(uuid, slotContainer.toString()));
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }, executorService);
+    }
+
+    public void loadAbilityStorageAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                Optional.ofNullable(abilityStorage.queryForId(uuid)).ifPresent(playerAbilityTable -> this.setSlotContainer(DefaultAbilitySlotContainer.fromString(playerAbilityTable.getAbilities())));
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }, executorService);
     }
 }

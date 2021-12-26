@@ -46,7 +46,7 @@ public class AbilityUserService implements Listener {
     public PlayerAbilityUser getAbilityPlayer(Player player) {
         AbilityUser abilityUser = users.get(player);
         if (abilityUser == null) {
-            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService);
+            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService, storage);
             user.enableAbilityBoard();
             user.enableEnergyBar();
             users.put(player, user);
@@ -100,7 +100,7 @@ public class AbilityUserService implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void on(AbilitySlotsReloadEvent event) {
         this.users.values().forEach(abilityUser -> {
-            if(abilityUser instanceof PlayerAbilityUser user) {
+            if (abilityUser instanceof PlayerAbilityUser user) {
                 user.getEnergyBar().getBossBar().removeAll();
             }
         });
