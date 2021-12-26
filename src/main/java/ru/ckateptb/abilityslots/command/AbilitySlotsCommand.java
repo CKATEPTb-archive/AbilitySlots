@@ -150,7 +150,6 @@ public class AbilitySlotsCommand {
             return;
         }
         user.setAbility(slot, ability);
-        sender.sendMessage();
     }
 
     @SuppressWarnings("unchecked")
