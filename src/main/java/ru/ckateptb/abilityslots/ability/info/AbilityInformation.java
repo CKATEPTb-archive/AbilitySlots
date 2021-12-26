@@ -96,37 +96,12 @@ public interface AbilityInformation extends Listener {
         return "abilities." + getCategory().getName() + "." + getName() + "." + field;
     }
 
-    default BaseComponent[] getBaseComponent() {
+    default BaseComponent[] toBaseComponent() {
         AbilitySlotsConfig config = SpringContext.getInstance().getBean(AbilitySlotsConfig.class);
         AbilityCategory category = getCategory();
         String prefix = config.isRespectCategoryPrefix() ? category.getPrefix() : "";
         StringBuilder builder = new StringBuilder();
-        builder.append("[")
-                .append(getFormattedName())
-                .append("]")
-                .append("(")
-                .append("hover=")
-                .append("\n")
-                .append(ChatColor.RESET)
-                .append(config.getAuthorText())
-                .append(getAuthor())
-                .append("\n")
-                .append(ChatColor.RESET)
-                .append(config.getCategoryText())
-                .append(prefix)
-                .append(category.getDisplayName())
-                .append("\n")
-                .append(ChatColor.RESET)
-                .append(config.getDescriptionText())
-                .append(prefix)
-                .append(getDescription())
-                .append("\n")
-                .append(ChatColor.RESET)
-                .append(config.getInstructionText())
-                .append(prefix)
-                .append(getInstruction())
-                .append(")")
-                .append(ChatColor.RESET)
+        builder
                 .append(config.getBindToSlotText())
                 .append(prefix)
                 .append("[①](run_command=/abilityslots bind ")
@@ -155,7 +130,30 @@ public interface AbilityInformation extends Listener {
                 .append(" 8)")
                 .append("[⑨](run_command=/abilityslots bind ")
                 .append(getName())
-                .append(" 9)");
+                .append(" 9) - [")
+                .append(getFormattedName())
+                .append("]")
+                .append("(")
+                .append("hover=")
+                .append(ChatColor.RESET)
+                .append(config.getAuthorText())
+                .append(getAuthor())
+                .append("\n")
+                .append(ChatColor.RESET)
+                .append(config.getCategoryText())
+                .append(prefix)
+                .append(category.getDisplayName())
+                .append("\n")
+                .append(ChatColor.RESET)
+                .append(config.getDescriptionText())
+                .append(prefix)
+                .append(getDescription())
+                .append("\n")
+                .append(ChatColor.RESET)
+                .append(config.getInstructionText())
+                .append(prefix)
+                .append(getInstruction())
+                .append(")");
         return MineDown.parse(builder.toString());
     }
 }

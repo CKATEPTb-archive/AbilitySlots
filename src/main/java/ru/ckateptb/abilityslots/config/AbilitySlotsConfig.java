@@ -62,7 +62,7 @@ public class AbilitySlotsConfig extends YamlConfig {
     @ConfigField(name = "language.baseComponent.instruction")
     private String instructionText = "§f§lInstruction: §8";
     @ConfigField(name = "language.baseComponent.bindToSlot")
-    private String bindToSlotText = "§f§lBind to slot: §8";
+    private String bindToSlotText = "§8Click for binding: §8";
 
     @ConfigField(name = "language.command.message.abilityNotFound")
     private String commandCouldNotFindAbilityMessage = "§cCould not find the specified ability.";
