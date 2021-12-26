@@ -51,6 +51,19 @@ public class AbilitySlotsConfig extends YamlConfig {
     @ConfigField(name = "global.board.comboDelimiter")
     private String boardComboDelimiter = "§f§lCombos:";
 
+    @ConfigField(name = "language.command.message.abilityNotFound")
+    private String commandCouldNotFindAbilityMessage = "§cCould not find the specified ability.";
+    @ConfigField(name = "language.command.message.invalidSlot")
+    private String commandInvalidSlotMessage = "§cSlot must be an integer from 1 to 9 (inclusive).";
+    @ConfigField(name = "language.command.message.playerNotFound")
+    private String commandPlayerNotFoundMessage = "§cThe specified player was not found.";
+    @ConfigField(name = "language.command.message.playerIsNotAbilityUser")
+    private String commandPlayerIsNotAbilityUserMessage = "§cThe specified player is not an ability user.";
+    @ConfigField(name = "language.command.message.abilityIsNotAvailableForUser")
+    private String commandAbilityIsNotAvailableForUserMessage = "§cThis ability is not available for user.";
+    @ConfigField(name = "language.command.message.reloadSuccess")
+    private String commandReloadSuccessMessage = "§aPlugin and reloaded successfully, see console for details.";
+
     @Override
     public void init() {
     }

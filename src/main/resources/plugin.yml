@@ -21,3 +21,21 @@ permissions:
   abilityslots.abilities.categoryname.abilityname:
     default: false
     description: Replace categoryname with the name of an existing category. Replace abilityname with the name of an existing ability. Players with this permission can use current ability.
+#  abilityslots.command:
+#    default: true
+#    description: Allows the user to use the abilityslots command to get help.
+#  abilityslots.command.bind:
+#    default: true
+#    description: Allows the user to use the abilityslots bind command to bind abilities to slots.
+#  abilityslots.command.bind.other:
+#    default: op
+#    description: Allows the user to use the abilityslots bind command relative to other users.
+#  abilityslots.command.clear:
+#    default: true
+#    description: Allows the user to use the abilityslots clear command to clear slots from abilities.
+#  abilityslots.command.clear.other:
+#    default: op
+#    description: Allows the user to use the abilityslots clear command relative to other users.
+#  abilityslots.command.reload:
+#    default: op
+#    description: Reload plugin.
