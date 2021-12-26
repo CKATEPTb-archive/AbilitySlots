@@ -15,23 +15,28 @@ import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
+import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class AbilityHandler implements Listener {
     private final AbilityUserService userService;
     private final AbilityInstanceService abilityInstanceService;
+    private final AbilityService abilityService;
 
-    public AbilityHandler(AbilityUserService userService, AbilityInstanceService abilityInstanceService) {
+    public AbilityHandler(AbilityUserService userService, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
         this.userService = userService;
+        this.abilityService = abilityService;
         this.abilityInstanceService = abilityInstanceService;
     }
 
-    public ActivateResult activateAbility(AbilityUser abilityUser, ActivationMethod method) {
+    public ActivateResult activateAbility(AbilityUser abilityUser, AbilityInformation ability, ActivationMethod method) {
         if (!(abilityUser instanceof PlayerAbilityUser user)) return ActivateResult.NOT_ACTIVATE;
-        AbilityInformation ability = user.getSelectedAbility();
 
         if (ability == null
                 || !ability.isActivatedBy(method)
@@ -46,24 +51,36 @@ public class AbilityHandler implements Listener {
         return activateResult;
     }
 
+    public List<AbilityInformation> getHandledAbilities(AbilityUser user) {
+        List<AbilityInformation> list = new ArrayList<>(abilityService.getPassiveAbilities());
+        list.removeIf(passive -> !abilityInstanceService.hasAbility(user, passive));
+        AbilityInformation selectedAbility = user.getSelectedAbility();
+        list.add(selectedAbility);
+        return list;
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onLeftClick(PlayerAnimationEvent event) {
         PlayerAbilityUser user = userService.getAbilityPlayer(event.getPlayer());
         if (user == null) return;
-        ActivateResult result = activateAbility(user, ActivationMethod.LEFT_CLICK);
-        if(result == ActivateResult.NOT_ACTIVATE_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
-            event.setCancelled(true);
-        }
+        this.getHandledAbilities(user).forEach(ability -> {
+            ActivateResult result = activateAbility(user, ability, ActivationMethod.LEFT_CLICK);
+            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                event.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onSneak(PlayerToggleSneakEvent event) {
         AbilityUser user = userService.getAbilityPlayer(event.getPlayer());
         if (user == null) return;
-        ActivateResult result = activateAbility(user, event.isSneaking() ? ActivationMethod.SNEAK : ActivationMethod.SNEAK_RELEASE);
-        if(result == ActivateResult.NOT_ACTIVATE_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
-            event.setCancelled(true);
-        }
+        this.getHandledAbilities(user).forEach(ability -> {
+            ActivateResult result = activateAbility(user, ability, event.isSneaking() ? ActivationMethod.SNEAK : ActivationMethod.SNEAK_RELEASE);
+            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                event.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -72,10 +89,12 @@ public class AbilityHandler implements Listener {
         if (!(event.getEntity() instanceof LivingEntity livingEntity)) return;
         AbilityUser user = userService.getAbilityUser(livingEntity);
         if (user == null) return;
-        ActivateResult result = activateAbility(user, ActivationMethod.FALL);
-        if(result == ActivateResult.NOT_ACTIVATE_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
-            event.setCancelled(true);
-        }
+        this.getHandledAbilities(user).forEach(ability -> {
+            ActivateResult result = activateAbility(user, ability, ActivationMethod.FALL);
+            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                event.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -85,10 +104,12 @@ public class AbilityHandler implements Listener {
         if (event.getHand() == EquipmentSlot.HAND) {
             Action action = event.getAction();
             if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-                ActivateResult result = activateAbility(user, ActivationMethod.RIGHT_CLICK);
-                if(result == ActivateResult.NOT_ACTIVATE_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
-                    event.setCancelled(true);
-                }
+                this.getHandledAbilities(user).forEach(ability -> {
+                    ActivateResult result = activateAbility(user, ability, ActivationMethod.RIGHT_CLICK);
+                    if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                        event.setCancelled(true);
+                    }
+                });
             }
         }
     }

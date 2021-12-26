@@ -14,7 +14,6 @@ import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-//TODO Сделать активацию пассивных способностей на все способы активации, если те указаны в способности (!И пересмотреть актуальность этой идеи, может она вовсе не нужна)
 //TODO Сделать команду на просмотр доступных способностей
 //TODO Сделать команду на просмотр привязанных способностей игрока
 //TODO Сделать Аннотацию Sequence которая будет регистрировать комбинации
@@ -33,6 +32,7 @@ public final class AbilitySlots extends SpringPlugin {
     private AbilityService abilityService;
     private AddonService addonService;
     private PluginManager pluginManager;
+
     public AbilitySlots() {
         instance = this;
     }
