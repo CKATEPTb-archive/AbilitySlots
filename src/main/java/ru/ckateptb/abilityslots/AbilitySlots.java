@@ -11,10 +11,12 @@ import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.service.AddonService;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-//TODO Сделать в Tablecloth API для Collision
+//TODO Сделать более информативный способ активации способностей с массивом Enum в ответ
+//TODO Сделать активацию пассивных способностей на все способы активации, если те указаны в способности (!И пересмотреть актуальность этой идеи, может она вовсе не нужна)
 //TODO Сделать команду на просмотр доступных способностей
 //TODO Сделать команду на просмотр привязанных способностей игрока
 //TODO Сделать Аннотацию Sequence которая будет регистрировать комбинации
+//TODO Сделать в Tablecloth API для Collision
 //TODO Сделать Аннотацию Collision которая будет регистрировать коллизии
 //TODO Сделать пресеты привязанных способностей
 //TODO Добавить собственные события
