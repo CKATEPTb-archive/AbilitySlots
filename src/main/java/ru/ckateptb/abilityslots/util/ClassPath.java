@@ -2,14 +2,11 @@ package ru.ckateptb.abilityslots.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.*;
-import com.google.common.io.ByteSource;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
-import com.google.common.reflect.Reflection;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -17,13 +14,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -36,23 +35,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author Ben Yu
  * @since 14.0
  */
-@Beta
 public final class ClassPath {
     private static final Logger logger = Logger.getLogger(ClassPath.class.getName());
-
-    private static final Predicate<ClassInfo> IS_TOP_LEVEL =
-            new Predicate<ClassInfo>() {
-                @Override
-                public boolean apply(ClassInfo info) {
-                    return info.className.indexOf('$') == -1;
-                }
-            };
 
     /**
      * Separator for the Class-Path manifest attribute value in jar files.
      */
-    private static final Splitter CLASS_PATH_ATTRIBUTE_SEPARATOR =
-            Splitter.on(" ").omitEmptyStrings();
+    private static final Splitter CLASS_PATH_ATTRIBUTE_SEPARATOR = Splitter.on(" ").omitEmptyStrings();
 
     private static final String CLASS_FILE_NAME_EXTENSION = ".class";
 
@@ -62,23 +51,7 @@ public final class ClassPath {
         this.resources = resources;
     }
 
-    /**
-     * Returns a {@code ClassPath} representing all classes and resources loadable from {@code
-     * classloader} and its parent class loaders.
-     *
-     * <p><b>Warning:</b> Currently only {@link URLClassLoader} and only {@code file://} urls are
-     * supported.
-     *
-     * @throws IOException if the attempt to read class path resources (jar files or directories)
-     *                     failed.
-     */
-    public static ClassPath from(ClassLoader classloader) throws IOException {
-        DefaultScanner scanner = new DefaultScanner();
-        scanner.scan(classloader);
-        return new ClassPath(scanner.getResources());
-    }
-
-    public static ClassPath from(ClassLoader classloader, JarFile jarFile) throws IOException {
+    public static ClassPath from(ClassLoader classloader, JarFile jarFile) {
         DefaultScanner scanner = new DefaultScanner();
         scanner.scanJarFile(classloader, jarFile);
         return new ClassPath(scanner.getResources());
@@ -91,57 +64,12 @@ public final class ClassPath {
     }
 
     /**
-     * Returns all resources loadable from the current class path, including the class files of all
-     * loadable classes but excluding the "META-INF/MANIFEST.MF" file.
-     */
-    public ImmutableSet<ResourceInfo> getResources() {
-        return resources;
-    }
-
-    /**
      * Returns all classes loadable from the current class path.
      *
      * @since 16.0
      */
-    public ImmutableSet<ClassInfo> getAllClasses() {
-        return FluentIterable.from(resources).filter(ClassInfo.class).toSet();
-    }
-
-    /**
-     * Returns all top level classes loadable from the current class path.
-     */
-    public ImmutableSet<ClassInfo> getTopLevelClasses() {
-        return FluentIterable.from(resources).filter(ClassInfo.class).filter(IS_TOP_LEVEL).toSet();
-    }
-
-    /**
-     * Returns all top level classes whose package name is {@code packageName}.
-     */
-    public ImmutableSet<ClassInfo> getTopLevelClasses(String packageName) {
-        checkNotNull(packageName);
-        ImmutableSet.Builder<ClassInfo> builder = ImmutableSet.builder();
-        for (ClassInfo classInfo : getTopLevelClasses()) {
-            if (classInfo.getPackageName().equals(packageName)) {
-                builder.add(classInfo);
-            }
-        }
-        return builder.build();
-    }
-
-    /**
-     * Returns all top level classes whose package name is {@code packageName} or starts with
-     * {@code packageName} followed by a '.'.
-     */
-    public ImmutableSet<ClassInfo> getTopLevelClassesRecursive(String packageName) {
-        checkNotNull(packageName);
-        String packagePrefix = packageName + '.';
-        ImmutableSet.Builder<ClassInfo> builder = ImmutableSet.builder();
-        for (ClassInfo classInfo : getTopLevelClasses()) {
-            if (classInfo.getName().startsWith(packagePrefix)) {
-                builder.add(classInfo);
-            }
-        }
-        return builder.build();
+    public Set<ClassInfo> getAllClasses() {
+        return resources.stream().filter(ClassInfo.class::isInstance).map(ClassInfo.class::cast).collect(Collectors.toSet());
     }
 
     /**
@@ -168,52 +96,6 @@ public final class ClassPath {
             }
         }
 
-        /**
-         * Returns the url identifying the resource.
-         *
-         * <p>See {@link ClassLoader#getResource}
-         *
-         * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *                                despite physically existing in the class path.
-         */
-        public final URL url() {
-            URL url = loader.getResource(resourceName);
-            if (url == null) {
-                throw new NoSuchElementException(resourceName);
-            }
-            return url;
-        }
-
-        /**
-         * Returns a {@link ByteSource} view of the resource from which its bytes can be read.
-         *
-         * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *                                despite physically existing in the class path.
-         * @since 20.0
-         */
-        public final ByteSource asByteSource() {
-            return Resources.asByteSource(url());
-        }
-
-        /**
-         * Returns a {@link CharSource} view of the resource from which its bytes can be read as
-         * characters decoded with the given {@code charset}.
-         *
-         * @throws NoSuchElementException if the resource cannot be loaded through the class loader,
-         *                                despite physically existing in the class path.
-         * @since 20.0
-         */
-        public final CharSource asCharSource(Charset charset) {
-            return Resources.asCharSource(url(), charset);
-        }
-
-        /**
-         * Returns the fully qualified name of the resource. Such as "com/mycomp/foo/bar.txt".
-         */
-        public final String getResourceName() {
-            return resourceName;
-        }
-
         @Override
         public int hashCode() {
             return resourceName.hashCode();
@@ -221,8 +103,7 @@ public final class ClassPath {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof ResourceInfo) {
-                ResourceInfo that = (ResourceInfo) obj;
+            if (obj instanceof ResourceInfo that) {
                 return resourceName.equals(that.resourceName) && loader == that.loader;
             }
             return false;
@@ -247,39 +128,6 @@ public final class ClassPath {
         ClassInfo(String resourceName, ClassLoader loader) {
             super(resourceName, loader);
             this.className = getClassName(resourceName);
-        }
-
-        /**
-         * Returns the package name of the class, without attempting to load the class.
-         *
-         * <p>Behaves identically to {@link Package#getName()} but does not require the class (or
-         * package) to be loaded.
-         */
-        public String getPackageName() {
-            return Reflection.getPackageName(className);
-        }
-
-        /**
-         * Returns the simple name of the underlying class as given in the source code.
-         *
-         * <p>Behaves identically to {@link Class#getSimpleName()} but does not require the class to be
-         * loaded.
-         */
-        public String getSimpleName() {
-            int lastDollarSign = className.lastIndexOf('$');
-            if (lastDollarSign != -1) {
-                String innerClassName = className.substring(lastDollarSign + 1);
-                // local and anonymous classes are prefixed with number (1,2,3...), anonymous classes are
-                // entirely numeric whereas local classes have the user supplied name as a suffix
-                return CharMatcher.digit().trimLeadingFrom(innerClassName);
-            }
-            String packageName = getPackageName();
-            if (packageName.isEmpty()) {
-                return className;
-            }
-
-            // Since this is a top level class, its simple name is always the part after package name.
-            return className.substring(packageName.length() + 1);
         }
 
         /**
@@ -357,28 +205,6 @@ public final class ClassPath {
             return builder.build();
         }
 
-        @VisibleForTesting
-        static ImmutableMap<File, ClassLoader> getClassPathEntries(ClassLoader classloader) {
-            LinkedHashMap<File, ClassLoader> entries = Maps.newLinkedHashMap();
-            // Search parent first, since it's the order ClassLoader#loadClass() uses.
-            ClassLoader parent = classloader.getParent();
-            if (parent != null) {
-                entries.putAll(getClassPathEntries(parent));
-            }
-            if (classloader instanceof URLClassLoader) {
-                URLClassLoader urlClassLoader = (URLClassLoader) classloader;
-                for (URL entry : urlClassLoader.getURLs()) {
-                    if (entry.getProtocol().equals("file")) {
-                        File file = new File(entry.getFile());
-                        if (!entries.containsKey(file)) {
-                            entries.put(file, classloader);
-                        }
-                    }
-                }
-            }
-            return ImmutableMap.copyOf(entries);
-        }
-
         /**
          * Returns the absolute uri of the Class-Path entry value as specified in
          * <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#Main_Attributes">
@@ -388,12 +214,6 @@ public final class ClassPath {
         @VisibleForTesting
         static URL getClassPathEntry(File jarFile, String path) throws MalformedURLException {
             return new URL(jarFile.toURI().toURL(), path);
-        }
-
-        public final void scan(ClassLoader classloader) throws IOException {
-            for (Map.Entry<File, ClassLoader> entry : getClassPathEntries(classloader).entrySet()) {
-                scan(entry.getKey(), entry.getValue());
-            }
         }
 
         /**
@@ -453,8 +273,7 @@ public final class ClassPath {
 
     @VisibleForTesting
     static final class DefaultScanner extends Scanner {
-        private final SetMultimap<ClassLoader, String> resources =
-                MultimapBuilder.hashKeys().linkedHashSetValues().build();
+        private final SetMultimap<ClassLoader, String> resources = MultimapBuilder.hashKeys().linkedHashSetValues().build();
 
         ImmutableSet<ResourceInfo> getResources() {
             ImmutableSet.Builder<ResourceInfo> builder = ImmutableSet.builder();
@@ -477,12 +296,11 @@ public final class ClassPath {
         }
 
         @Override
-        protected void scanDirectory(ClassLoader classloader, File directory) throws IOException {
+        protected void scanDirectory(ClassLoader classloader, File directory) {
             scanDirectory(directory, classloader, "");
         }
 
-        private void scanDirectory(File directory, ClassLoader classloader, String packagePrefix)
-                throws IOException {
+        private void scanDirectory(File directory, ClassLoader classloader, String packagePrefix) {
             File[] files = directory.listFiles();
             if (files == null) {
                 logger.warning("Cannot read directory " + directory);
