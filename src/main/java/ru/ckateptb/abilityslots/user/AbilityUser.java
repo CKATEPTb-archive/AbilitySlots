@@ -1,7 +1,7 @@
 package ru.ckateptb.abilityslots.user;
 
 import org.bukkit.entity.LivingEntity;
-import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityActivateConditional;
+import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 
@@ -38,7 +38,7 @@ public interface AbilityUser {
 
     boolean canActivate(AbilityInformation ability);
 
-    CompositeAbilityActivateConditional getAbilityActivateConditional();
+    CompositeAbilityConditional getAbilityActivateConditional();
 
-    void setAbilityActivateConditional(CompositeAbilityActivateConditional conditional);
+    void setAbilityActivateConditional(CompositeAbilityConditional conditional);
 }

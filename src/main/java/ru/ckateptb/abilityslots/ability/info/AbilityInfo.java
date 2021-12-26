@@ -28,5 +28,5 @@ public @interface AbilityInfo {
 
     ActivationMethod[] activationMethods();
 
-    boolean hidden() default false;
+    boolean canBindToSlot() default true;
 }

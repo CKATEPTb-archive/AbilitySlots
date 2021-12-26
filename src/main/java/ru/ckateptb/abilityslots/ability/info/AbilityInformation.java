@@ -48,7 +48,7 @@ public interface AbilityInformation extends Listener {
 
     ActivationMethod[] getActivationMethods();
 
-    boolean isHidden();
+    boolean isCanBindToSlot();
 
     String getAuthor();
 

@@ -16,17 +16,17 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
     protected final LivingEntity livingEntity;
     private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
-    private CompositeAbilityActivateConditional abilityActivateConditional = new CompositeAbilityActivateConditional();
+    private CompositeAbilityConditional abilityActivateConditional = new CompositeAbilityConditional();
 
     public LivingEntityAbilityUser(LivingEntity livingEntity) {
         this.livingEntity = livingEntity;
         this.slotContainer = new DefaultAbilitySlotContainer();
         this.abilityActivateConditional.add(
-                new CategoryAbilityActivateConditional(),
-                new CooldownAbilityActivateConditional(),
-                new EnabledAbilityActivateConditional(),
-                new GameModeAbilityActivateConditional(GameMode.SPECTATOR),
-                new PermissionAbilityActivateConditional()
+                new CategoryAbilityConditional(),
+                new CooldownAbilityConditional(),
+                new EnabledAbilityConditional(),
+                new GameModeAbilityConditional(GameMode.SPECTATOR),
+                new PermissionAbilityConditional()
         );
     }
 
@@ -86,16 +86,16 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
 
     @Override
     public boolean canActivate(AbilityInformation ability) {
-        return abilityActivateConditional.canActivate(this, ability);
+        return abilityActivateConditional.matches(this, ability);
     }
 
     @Override
-    public CompositeAbilityActivateConditional getAbilityActivateConditional() {
+    public CompositeAbilityConditional getAbilityActivateConditional() {
         return abilityActivateConditional;
     }
 
     @Override
-    public void setAbilityActivateConditional(CompositeAbilityActivateConditional conditional) {
+    public void setAbilityActivateConditional(CompositeAbilityConditional conditional) {
         this.abilityActivateConditional = conditional;
     }
 

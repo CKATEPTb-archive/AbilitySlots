@@ -9,15 +9,15 @@ import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 import java.util.Arrays;
 import java.util.List;
 
-public class GameModeAbilityActivateConditional implements AbilityActivateConditional {
+public class GameModeAbilityConditional implements AbilityConditional {
     private final List<GameMode> restricted;
 
-    public GameModeAbilityActivateConditional(GameMode... restricted) {
+    public GameModeAbilityConditional(GameMode... restricted) {
         this.restricted = Arrays.asList(restricted);
     }
 
     @Override
-    public boolean canActivate(AbilityUser user, AbilityInformation ability) {
+    public boolean matches(AbilityUser user, AbilityInformation ability) {
         if (user instanceof PlayerAbilityUser playerAbilityUser) {
             Player player = playerAbilityUser.getEntity();
             return !restricted.contains(player.getGameMode());

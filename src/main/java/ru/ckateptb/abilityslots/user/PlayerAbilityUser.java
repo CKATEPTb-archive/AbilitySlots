@@ -1,6 +1,8 @@
 package ru.ckateptb.abilityslots.user;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
@@ -11,16 +13,26 @@ import ru.ckateptb.abilityslots.service.AbilityService;
 public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private final AbilityBoard abilityBoard;
     private final EnergyBar energyBar;
+    private final CompositeAbilityConditional abilityBindConditional = new CompositeAbilityConditional();
 
     public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
         super(livingEntity);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
+        this.abilityBindConditional.add(
+                new CategoryAbilityConditional(),
+                new EnabledAbilityConditional(),
+                new PermissionAbilityConditional()
+        );
         abilityInstanceService.createPassives(this);
     }
 
     public int getHeldItemSlot() {
         return getEntity().getInventory().getHeldItemSlot() + 1;
+    }
+
+    public boolean canBind(AbilityInformation ability) {
+        return this.abilityBindConditional.matches(this, ability);
     }
 
     @Override

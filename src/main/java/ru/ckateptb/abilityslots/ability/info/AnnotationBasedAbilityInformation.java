@@ -26,7 +26,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     private String displayName;
     private String description;
     private String instruction;
-    private boolean hidden;
+    private boolean canBindToSlot;
 
     public AnnotationBasedAbilityInformation(AbilityInfo abilityInfo, AbilityCategory abilityCategory, Class<? extends Ability> abilityClass) {
         this.name = abilityInfo.name();
@@ -38,7 +38,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
         this.cooldown = abilityInfo.cooldown();
         this.cost = abilityInfo.cost();
         this.enabled = true;
-        this.hidden = abilityInfo.hidden();
+        this.canBindToSlot = abilityInfo.canBindToSlot();
         this.author = abilityInfo.author();
         this.activationMethods = abilityInfo.activationMethods();
     }

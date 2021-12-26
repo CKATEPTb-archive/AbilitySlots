@@ -16,7 +16,7 @@ public class AbilityService {
 
     public void registerAbility(AbilityInformation ability) {
         String name = ability.getName();
-        if(ability.isActivatedBy(ActivationMethod.PASSIVE)) {
+        if (ability.isActivatedBy(ActivationMethod.PASSIVE)) {
             passives.put(name, ability);
         }
         abilities.put(name, ability);

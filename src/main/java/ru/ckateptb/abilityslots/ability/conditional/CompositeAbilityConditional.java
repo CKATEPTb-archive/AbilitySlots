@@ -9,38 +9,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CompositeAbilityActivateConditional implements AbilityActivateConditional {
-    private final List<AbilityActivateConditional> conditionals = new ArrayList<>();
+public class CompositeAbilityConditional implements AbilityConditional {
+    private final List<AbilityConditional> conditionals = new ArrayList<>();
 
     @Override
-    public boolean canActivate(AbilityUser user, AbilityInformation ability) {
-        return conditionals.stream().allMatch((cond) -> cond.canActivate(user, ability));
+    public boolean matches(AbilityUser user, AbilityInformation ability) {
+        return conditionals.stream().allMatch((cond) -> cond.matches(user, ability));
     }
 
-    public void add(AbilityActivateConditional... conditionals) {
+    public void add(AbilityConditional... conditionals) {
         this.conditionals.addAll(Arrays.asList(conditionals));
     }
 
-    public void add(Collection<AbilityActivateConditional> conditionals) {
-        conditionals.addAll(conditionals);
+    public void add(Collection<AbilityConditional> conditionals) {
+        this.conditionals.addAll(conditionals);
     }
 
-    public void add(AbilityActivateConditional conditional) {
+    public void add(AbilityConditional conditional) {
         conditionals.add(conditional);
     }
 
-    public void remove(AbilityActivateConditional conditional) {
+    public void remove(AbilityConditional conditional) {
         conditionals.remove(conditional);
     }
 
-    public boolean hasType(Class<? extends AbilityActivateConditional> type) {
+    public boolean hasType(Class<? extends AbilityConditional> type) {
         return conditionals.stream().anyMatch(cond -> type.isAssignableFrom(cond.getClass()));
     }
 
     // Returns all of the conditionals that were removed.
-    public List<AbilityActivateConditional> removeType(Class<? extends AbilityActivateConditional> type) {
+    public List<AbilityConditional> removeType(Class<? extends AbilityConditional> type) {
         // Filter out any conditionals that match the provided type.
-        List<AbilityActivateConditional> filtered = conditionals.stream()
+        List<AbilityConditional> filtered = conditionals.stream()
                 .filter((cond) -> type.isAssignableFrom(cond.getClass()))
                 .collect(Collectors.toList());
         conditionals.removeAll(filtered);
