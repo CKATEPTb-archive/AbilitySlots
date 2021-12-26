@@ -34,6 +34,7 @@ public class AddonService {
     private final List<Class<?>> loadedClasses = new ArrayList<>();
     private final AbilityCategoryService abilityCategoryService;
     private final AbilityService abilityService;
+    private final String nameRegex = "[a-zA-Z]+";
 
     public AddonService(AbilityCategoryService abilityCategoryService, AbilityService abilityService) {
         this.abilityCategoryService = abilityCategoryService;
@@ -42,7 +43,9 @@ public class AddonService {
     }
 
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     public void loadAddons() {
+        loadedClasses.clear();
         File abilities = Paths.get(plugin.getDataFolder().getPath(), "abilities").toFile();
         FileUtils.forceMkdir(abilities);
         List<File> files = getFilesFromFolder(abilities);
@@ -80,8 +83,13 @@ public class AddonService {
                         log.error("Failed to register category " + cl.getName(), e);
                     }
                     if (abilityCategory != null) {
-                        log.info("Found a new category for abilities ({})", abilityCategory.getName());
-                        abilityCategoryService.registerCategory(abilityCategory);
+                        String categoryName = abilityCategory.getName();
+                        if(categoryName.matches(nameRegex)) {
+                            log.info("Found a new category for abilities ({})", categoryName);
+                            abilityCategoryService.registerCategory(abilityCategory);
+                        } else {
+                            log.info("Found a new category for abilities ({}), but the developer made a mistake. The name must contain characters from a-zA-Z", categoryName);
+                        }
                     }
                 }
             }
@@ -103,10 +111,14 @@ public class AddonService {
                             if (category == null) {
                                 log.warn("Found a new ability ({}), but the category ({}) specified by the developer does not exist, please pass this information to him", cl.getName(), categoryName);
                             } else {
-                                AnnotationBasedAbilityInformation ability = new AnnotationBasedAbilityInformation(abilityInfo, category, (Class<? extends Ability>) cl);
-                                log.info("Found a new ability ({})", ability.getName());
-                                category.registerAbility(ability);
-                                abilityService.registerAbility(ability);
+                                if(abilityInfo.name().matches(nameRegex)) {
+                                    AnnotationBasedAbilityInformation ability = new AnnotationBasedAbilityInformation(abilityInfo, category, (Class<? extends Ability>) cl);
+                                    log.info("Found a new ability ({})", ability.getName());
+                                    category.registerAbility(ability);
+                                    abilityService.registerAbility(ability);
+                                } else {
+                                    log.info("Found a new ability ({}), but the developer made a mistake. The name must contain characters from a-zA-Z", categoryName);
+                                }
                             }
                         }
                     }
