@@ -51,6 +51,19 @@ public class AbilitySlotsConfig extends YamlConfig {
     @ConfigField(name = "global.board.comboDelimiter")
     private String boardComboDelimiter = "§f§lCombos:";
 
+    @ConfigField(name = "language.baseComponent.respectCategoryPrefix")
+    private boolean respectCategoryPrefix = true;
+    @ConfigField(name = "language.baseComponent.author")
+    private String authorText = "§f§lAuthor: §8";
+    @ConfigField(name = "language.baseComponent.category")
+    private String categoryText = "§f§lCategory: §8";
+    @ConfigField(name = "language.baseComponent.description")
+    private String descriptionText = "§f§lDescription: §8";
+    @ConfigField(name = "language.baseComponent.instruction")
+    private String instructionText = "§f§lInstruction: §8";
+    @ConfigField(name = "language.baseComponent.bindToSlot")
+    private String bindToSlotText = "§f§lBind to slot: §8";
+
     @ConfigField(name = "language.command.message.abilityNotFound")
     private String commandCouldNotFindAbilityMessage = "§cCould not find the specified ability.";
     @ConfigField(name = "language.command.message.invalidSlot")
