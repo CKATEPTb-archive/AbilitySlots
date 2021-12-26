@@ -11,25 +11,24 @@ import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.service.AddonService;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-//TODO Сделать собственную реализацию AbilityInstanceService (внутри AbilityService)
 //TODO Сделать в Tablecloth API для Collision
-//TODO Сделать команды для взаимодействия с плагином
+//TODO Сделать команду на просмотр доступных способностей
+//TODO Сделать команду на просмотр привязанных способностей игрока
 //TODO Сделать Аннотацию Sequence которая будет регистрировать комбинации
 //TODO Сделать Аннотацию Collision которая будет регистрировать коллизии
+//TODO Сделать пресеты привязанных способностей
 //TODO Добавить собственные события
 //TODO Пересмотреть код, может что улучшить, добавить, оптимизировать
 //TODO Сделать Адон по мотивам Avatar (ProjectKorra), вынося необходимое в Tablecloth
 public final class AbilitySlots extends SpringPlugin {
     @Getter
     private static AbilitySlots instance;
-
-    public AbilitySlots() {
-        instance = this;
-    }
-
     public AbilitySlotsConfig abilitySlotsConfig;
     public AbilityUserService abilityUserService;
     public AddonService addonService;
+    public AbilitySlots() {
+        instance = this;
+    }
 
     @Override
     public void onEnable() {

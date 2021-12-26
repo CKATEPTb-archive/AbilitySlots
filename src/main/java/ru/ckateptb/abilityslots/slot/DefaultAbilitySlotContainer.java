@@ -12,6 +12,21 @@ import java.util.stream.Collectors;
 public class DefaultAbilitySlotContainer implements AbilitySlotContainer {
     private final AbilityInformation[] abilities = new AbilityInformation[9];
 
+    public static DefaultAbilitySlotContainer fromString(String string) {
+        DefaultAbilitySlotContainer container = new DefaultAbilitySlotContainer();
+        String[] names = string.split("\\|");
+        AbilityService service = SpringContext.getInstance().getBean(AbilityService.class);
+        for (int i = 1; i <= 9; i++) {
+            if (names.length < i) break;
+            AbilityInformation info = service.getAbility(names[i - 1]);
+            if (info == null) continue;
+            if (info.isEnabled() && info.isCanBindToSlot()) {
+                container.setAbility(i, info);
+            }
+        }
+        return container;
+    }
+
     @Override
     public AbilityInformation[] getAbilities() {
         return abilities;
@@ -46,20 +61,5 @@ public class DefaultAbilitySlotContainer implements AbilitySlotContainer {
             if (info == null) return " ";
             return info.getName();
         }).collect(Collectors.joining("|"));
-    }
-
-    public static DefaultAbilitySlotContainer fromString(String string) {
-        DefaultAbilitySlotContainer container = new DefaultAbilitySlotContainer();
-        String[] names = string.split("\\|");
-        AbilityService service = SpringContext.getInstance().getBean(AbilityService.class);
-        for (int i = 1; i <= 9; i++) {
-            if (names.length < i) break;
-            AbilityInformation info = service.getAbility(names[i - 1]);
-            if(info == null) continue;
-            if (info.isEnabled() && info.isCanBindToSlot()) {
-                container.setAbility(i, info);
-            }
-        }
-        return container;
     }
 }

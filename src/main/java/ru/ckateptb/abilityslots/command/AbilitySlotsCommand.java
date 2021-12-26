@@ -165,7 +165,7 @@ public class AbilitySlotsCommand {
 
     public <T> T parseArgument(Class<T> type, Object[] args) {
         List<T> list = parseArguments(type, args);
-        if(list.isEmpty()) return null;
+        if (list.isEmpty()) return null;
         return list.get(0);
     }
 }
