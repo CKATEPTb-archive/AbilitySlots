@@ -75,7 +75,7 @@ public class AbilitySlotsConfig extends YamlConfig {
     @ConfigField(name = "language.command.message.abilityIsNotAvailableForUser")
     private String commandAbilityIsNotAvailableForUserMessage = "§cThis ability is not available for user.";
     @ConfigField(name = "language.command.message.reloadSuccess")
-    private String commandReloadSuccessMessage = "§aPlugin and reloaded successfully, see console for details.";
+    private String commandReloadSuccessMessage = "§aPlugin reloaded successfully, see console for details.";
 
     @Override
     public void init() {
