@@ -61,14 +61,12 @@ public class AbilityUserService implements Listener {
 
     @Scheduled(initialDelay = 5, fixedRate = 1)
     public void update() {
-        CompletableFuture.runAsync(() -> {
-            new CopyOnWriteArrayList<>(users.values()).forEach(abilityUser -> {
-                if (abilityUser instanceof PlayerAbilityUser user) {
-                    user.updateAbilityBoard();
-                    user.updateEnergyBar();
-                }
-            });
-        }, executorService);
+        CompletableFuture.runAsync(() -> new CopyOnWriteArrayList<>(users.values()).forEach(abilityUser -> {
+            if (abilityUser instanceof PlayerAbilityUser user) {
+                user.updateAbilityBoard();
+                user.updateEnergyBar();
+            }
+        }), executorService);
     }
 
     @SneakyThrows
@@ -101,6 +99,11 @@ public class AbilityUserService implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(AbilitySlotsReloadEvent event) {
+        this.users.values().forEach(abilityUser -> {
+            if(abilityUser instanceof PlayerAbilityUser user) {
+                user.getEnergyBar().getBossBar().removeAll();
+            }
+        });
         this.users.clear();
     }
 }
