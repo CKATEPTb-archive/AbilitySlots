@@ -1,5 +1,6 @@
 package ru.ckateptb.abilityslots.ability;
 
+import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
@@ -10,7 +11,7 @@ import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
 public interface Ability {
-    boolean activate(AbilityUser user, ActivationMethod method);
+    ActivateResult activate(AbilityUser user, ActivationMethod method);
 
     UpdateResult update();
 

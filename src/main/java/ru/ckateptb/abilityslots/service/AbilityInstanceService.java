@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
+import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
@@ -86,7 +87,8 @@ public class AbilityInstanceService implements Listener {
             if (!passive.isEnabled()) continue;
             if (!user.canActivate(passive)) continue;
             Ability ability = passive.createAbility();
-            if (ability.activate(user, ActivationMethod.PASSIVE)) {
+            ActivateResult activateResult = ability.activate(user, ActivationMethod.PASSIVE);
+            if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
                 this.registerInstance(user, ability);
             }
         }

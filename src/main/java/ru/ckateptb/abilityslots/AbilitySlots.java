@@ -11,7 +11,6 @@ import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.service.AddonService;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-//TODO Сделать более информативный способ активации способностей с массивом Enum в ответ
 //TODO Сделать активацию пассивных способностей на все способы активации, если те указаны в способности (!И пересмотреть актуальность этой идеи, может она вовсе не нужна)
 //TODO Реализовать информацию о способностях в BaseComponent
 //TODO Сделать команду на просмотр доступных способностей
