@@ -2,10 +2,7 @@ package ru.ckateptb.abilityslots.user;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;
-import ru.ckateptb.abilityslots.ability.conditional.CategoryAbilityConditional;
-import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
-import ru.ckateptb.abilityslots.ability.conditional.EnabledAbilityConditional;
-import ru.ckateptb.abilityslots.ability.conditional.PermissionAbilityConditional;
+import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
@@ -26,6 +23,7 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
         this.abilityBindConditional.add(
                 new CategoryAbilityConditional(),
                 new EnabledAbilityConditional(),
+                new CanBindToSlotAbilityConditional(),
                 new PermissionAbilityConditional()
         );
         abilityInstanceService.createPassives(this);
