@@ -1,8 +1,12 @@
 package ru.ckateptb.abilityslots.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class AbilityCategoryService {
+public class AbilityCategoryService implements Listener {
     private final Map<String, AbilityCategory> categories = new HashMap<>();
 
     public void registerCategory(AbilityCategory abilityCategory) {
@@ -23,5 +27,10 @@ public class AbilityCategoryService {
 
     public AbilityCategory getCategory(String name) {
         return categories.get(name.toLowerCase());
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void on(AbilitySlotsReloadEvent event) {
+        this.categories.clear();
     }
 }

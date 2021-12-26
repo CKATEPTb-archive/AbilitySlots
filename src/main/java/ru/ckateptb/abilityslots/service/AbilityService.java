@@ -1,8 +1,12 @@
 package ru.ckateptb.abilityslots.service;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class AbilityService {
+public class AbilityService implements Listener {
     private final Map<String, AbilityInformation> abilities = new HashMap<>();
     private final Map<String, AbilityInformation> passives = new HashMap<>();
 
@@ -32,5 +36,11 @@ public class AbilityService {
 
     public Collection<AbilityInformation> getPassiveAbilities() {
         return Collections.unmodifiableCollection(passives.values());
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void on(AbilitySlotsReloadEvent event) {
+        this.abilities.clear();
+        this.passives.clear();
     }
 }

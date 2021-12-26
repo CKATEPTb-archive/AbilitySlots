@@ -1,4 +1,4 @@
-package ru.ckateptb.abilityslots.addon;
+package ru.ckateptb.abilityslots.service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +11,7 @@ import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
-import ru.ckateptb.abilityslots.service.AbilityCategoryService;
-import ru.ckateptb.abilityslots.service.AbilityService;
+import ru.ckateptb.abilityslots.util.ClassPath;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +38,6 @@ public class AddonService {
     public AddonService(AbilityCategoryService abilityCategoryService, AbilityService abilityService) {
         this.abilityCategoryService = abilityCategoryService;
         this.abilityService = abilityService;
-        this.loadAddons();
     }
 
     @SneakyThrows
@@ -84,7 +82,7 @@ public class AddonService {
                     }
                     if (abilityCategory != null) {
                         String categoryName = abilityCategory.getName();
-                        if(categoryName.matches(nameRegex)) {
+                        if (categoryName.matches(nameRegex)) {
                             log.info("Found a new category for abilities ({})", categoryName);
                             abilityCategoryService.registerCategory(abilityCategory);
                         } else {
@@ -111,7 +109,7 @@ public class AddonService {
                             if (category == null) {
                                 log.warn("Found a new ability ({}), but the category ({}) specified by the developer does not exist, please pass this information to him", cl.getName(), categoryName);
                             } else {
-                                if(abilityInfo.name().matches(nameRegex)) {
+                                if (abilityInfo.name().matches(nameRegex)) {
                                     AnnotationBasedAbilityInformation ability = new AnnotationBasedAbilityInformation(abilityInfo, category, (Class<? extends Ability>) cl);
                                     log.info("Found a new ability ({})", ability.getName());
                                     category.registerAbility(ability);

@@ -1,5 +1,8 @@
 package ru.ckateptb.abilityslots.service;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -9,6 +12,7 @@ import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 
 import java.util.*;
@@ -17,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @EnableScheduling
 // TODO Это не мой код, его нужно переписать
-public class AbilityInstanceService {
+public class AbilityInstanceService implements Listener {
     private final Map<AbilityUser, List<Ability>> instances = new HashMap<>();
     private final AbilityService abilityService;
 
@@ -206,6 +210,11 @@ public class AbilityInstanceService {
             instances.clear();
             playerIterator.remove();
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void on(AbilitySlotsReloadEvent event) {
+        this.destroyAllInstances();
     }
 
     @EventListener

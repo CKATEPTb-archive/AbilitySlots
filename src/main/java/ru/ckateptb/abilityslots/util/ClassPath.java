@@ -1,4 +1,4 @@
-package ru.ckateptb.abilityslots.addon;
+package ru.ckateptb.abilityslots.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;

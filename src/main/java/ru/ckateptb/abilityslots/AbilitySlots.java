@@ -1,15 +1,16 @@
 package ru.ckateptb.abilityslots;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
-import org.slf4j.Logger;
+import org.bukkit.entity.Player;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 import ru.ckateptb.abilityslots.service.AbilityService;
+import ru.ckateptb.abilityslots.service.AbilityUserService;
+import ru.ckateptb.abilityslots.service.AddonService;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-@Slf4j
 //TODO Сделать собственную реализацию AbilityInstanceService (внутри AbilityService)
 //TODO Сделать в Tablecloth API для Collision
 //TODO Сделать команды для взаимодействия с плагином
@@ -27,17 +28,28 @@ public final class AbilitySlots extends SpringPlugin {
         instance = this;
     }
 
-    public static Logger getLog() {
-        return log;
-    }
+    public AbilitySlotsConfig abilitySlotsConfig;
+    public AbilityUserService abilityUserService;
+    public AddonService addonService;
 
     @Override
     public void onEnable() {
         super.onEnable();
         getContext().getBean(AbilityCategoryService.class).getCategories().forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
         getContext().getBean(AbilityService.class).getAbilities().forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
-        AbilitySlotsConfig abilitySlotsConfig = getContext().getBean(AbilitySlotsConfig.class);
-        abilitySlotsConfig.load();
-        abilitySlotsConfig.save();
+        this.abilitySlotsConfig = getContext().getBean(AbilitySlotsConfig.class);
+        this.addonService = getContext().getBean(AddonService.class);
+        this.abilityUserService = getContext().getBean(AbilityUserService.class);
+        this.reload();
+    }
+
+    public void reload() {
+        Bukkit.getPluginManager().callEvent(new AbilitySlotsReloadEvent());
+        this.addonService.loadAddons();
+        this.abilitySlotsConfig.load();
+        this.abilitySlotsConfig.save();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            this.abilityUserService.getAbilityPlayer(player);
+        }
     }
 }

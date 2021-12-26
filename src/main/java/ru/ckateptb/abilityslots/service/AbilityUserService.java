@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -13,10 +14,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
-import ru.ckateptb.tablecloth.async.AsyncService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,13 @@ public class AbilityUserService implements Listener {
 
     public PlayerAbilityUser getAbilityPlayer(Player player) {
         AbilityUser abilityUser = users.get(player);
-        if (abilityUser == null) return null;
+        if (abilityUser == null) {
+            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService);
+            user.enableAbilityBoard();
+            user.enableEnergyBar();
+            users.put(player, user);
+            return user;
+        }
         return (PlayerAbilityUser) abilityUser;
     }
 
@@ -67,11 +74,7 @@ public class AbilityUserService implements Listener {
     @SneakyThrows
     @EventHandler
     public void on(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService);
-        user.enableAbilityBoard();
-        user.enableEnergyBar();
-        users.put(player, user);
+        getAbilityPlayer(event.getPlayer());
     }
 
     @EventHandler
@@ -94,5 +97,10 @@ public class AbilityUserService implements Listener {
         if (!(entity instanceof Player)) {
             users.remove(entity);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void on(AbilitySlotsReloadEvent event) {
+        this.users.clear();
     }
 }
