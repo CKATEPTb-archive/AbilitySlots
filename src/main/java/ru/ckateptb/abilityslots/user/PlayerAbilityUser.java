@@ -66,6 +66,7 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     public boolean canUse(AbilityInformation ability) {
         return this.abilityUseConditional.matches(this, ability);
     }
+
     public boolean canUse(AbilityCategory category) {
         return this.categoryUseConditional.matches(this, category);
     }

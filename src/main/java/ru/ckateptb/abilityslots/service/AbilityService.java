@@ -27,7 +27,7 @@ public class AbilityService implements Listener {
     }
 
     public AbilityInformation getAbility(String name) {
-        if(name == null) return null;
+        if (name == null) return null;
         return abilities.get(name.toLowerCase());
     }
 

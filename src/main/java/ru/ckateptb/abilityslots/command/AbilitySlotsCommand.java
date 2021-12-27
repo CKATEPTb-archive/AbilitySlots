@@ -176,10 +176,10 @@ public class AbilitySlotsCommand {
         Map<AbilityCategory, List<AbilityInformation>> abilities = new HashMap<>();
         abilityStream.forEach(ability -> abilities.computeIfAbsent(ability.getCategory(), key -> new ArrayList<>()).add(ability));
         abilities.forEach((key, value) -> {
-            if(!value.isEmpty()) {
+            if (!value.isEmpty()) {
                 String categoryPrefix = config.getCommandDisplayCategoryPrefixMessage();
                 String categoryMessage = key.getDisplayName() + ":";
-                if(!categoryPrefix.isBlank()) {
+                if (!categoryPrefix.isBlank()) {
                     categoryMessage = categoryPrefix + ChatColor.stripColor(categoryMessage);
                 }
                 sender.sendMessage(categoryMessage);
@@ -189,17 +189,17 @@ public class AbilitySlotsCommand {
                 value.forEach(ability -> {
                     if (ability.isActivatedBy(ActivationMethod.PASSIVE)) {
                         passives.add(ability);
-                    } else if(ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
+                    } else if (ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
                         sequences.add(ability);
                     } else {
                         sender.spigot().sendMessage(ability.toBaseComponent());
                     }
                 });
-                if(!passives.isEmpty()) {
+                if (!passives.isEmpty()) {
                     sender.sendMessage(config.getCommandDisplayPassivesMessage());
                     passives.forEach(ability -> sender.spigot().sendMessage(ability.toBaseComponent()));
                 }
-                if(!sequences.isEmpty()) {
+                if (!sequences.isEmpty()) {
                     sender.sendMessage(config.getCommandDisplaySequencesMessage());
                     sequences.forEach(ability -> sender.spigot().sendMessage(ability.toBaseComponent()));
                 }
