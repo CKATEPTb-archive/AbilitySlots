@@ -19,7 +19,7 @@ public class AbilityService implements Listener {
     private final Map<String, AbilityInformation> passives = new HashMap<>();
 
     public void registerAbility(AbilityInformation ability) {
-        String name = ability.getName();
+        String name = ability.getName().toLowerCase();
         if (ability.isActivatedBy(ActivationMethod.PASSIVE)) {
             passives.put(name, ability);
         }
@@ -27,7 +27,8 @@ public class AbilityService implements Listener {
     }
 
     public AbilityInformation getAbility(String name) {
-        return abilities.get(name);
+        if(name == null) return null;
+        return abilities.get(name.toLowerCase());
     }
 
     public Collection<AbilityInformation> getAbilities() {

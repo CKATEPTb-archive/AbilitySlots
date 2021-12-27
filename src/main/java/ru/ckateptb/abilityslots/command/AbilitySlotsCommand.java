@@ -5,29 +5,38 @@ import dev.jorel.commandapi.SuggestionInfo;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
+import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Component
 public class AbilitySlotsCommand {
     private final AbilityService abilityService;
+    private final AbilityCategoryService categoryService;
     private final AbilityUserService abilityUserService;
     private final AbilitySlotsConfig config;
     private final AbilitySlots plugin = AbilitySlots.getInstance();
 
-    public AbilitySlotsCommand(AbilityService abilityService, AbilityUserService abilityUserService, AbilitySlotsConfig config) {
+    public AbilitySlotsCommand(AbilityService abilityService, AbilityCategoryService categoryService, AbilityUserService abilityUserService, AbilitySlotsConfig config) {
         this.abilityService = abilityService;
+        this.categoryService = categoryService;
         this.abilityUserService = abilityUserService;
         this.config = config;
         new CommandAPICommand("abilityslots")
@@ -36,8 +45,21 @@ public class AbilitySlotsCommand {
                 .withPermission("abilityslots.command")
                 .executes((sender, args) -> {
                     // TODO HELP COMMAND
-                    sender.sendMessage("AbilitySlots help command");
+//                    sender.sendMessage("AbilitySlots help command");
                 })
+                .withSubcommand(
+                        new CommandAPICommand("display")
+                                .withPermission("abilityslots.command.display")
+                                .withAliases("d")
+                                .executes(this::executeDisplay)
+                )
+                .withSubcommand(
+                        new CommandAPICommand("display")
+                                .withPermission("abilityslots.command.display")
+                                .withAliases("d")
+                                .withArguments(new StringArgument("category").replaceSuggestions(this::categorySuggestion))
+                                .executes(this::executeDisplay)
+                )
                 .withSubcommand(
                         new CommandAPICommand("bind")
                                 .withPermission("abilityslots.command.bind")
@@ -83,6 +105,20 @@ public class AbilitySlotsCommand {
                 .register();
     }
 
+    public String[] categorySuggestion(SuggestionInfo info) {
+        return categoryService.getCategories().stream()
+                .filter(AbilityCategory::isEnabled)
+                .filter(category -> {
+                    if (info.sender() instanceof Player player) {
+                        PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+                        if (user == null) return false;
+                        return user.canUse(category);
+                    } else return true;
+                })
+                .map(AbilityCategory::getName)
+                .toArray(String[]::new);
+    }
+
     public String[] abilitySuggestion(SuggestionInfo info) {
         return abilityService.getAbilities().stream()
                 .filter(AbilityInformation::isEnabled)
@@ -118,6 +154,57 @@ public class AbilitySlotsCommand {
             return;
         }
         user.clearAbilities();
+    }
+
+    public void executeDisplay(CommandSender sender, Object[] args) {
+        AbilityCategory category = categoryService.getCategory(parseArgument(String.class, args));
+        Stream<AbilityInformation> abilityStream = this.abilityService.getAbilities().stream();
+        // sort by display name
+        abilityStream = abilityStream.sorted((o1, o2) -> ChatColor.stripColor(o1.getDisplayName()).compareToIgnoreCase(ChatColor.stripColor(o2.getDisplayName())));
+        if (category != null) {
+            abilityStream = abilityStream.filter(ability -> ability.getCategory() == category);
+        } else {
+            // sort by category display name
+            abilityStream = abilityStream.sorted((o1, o2) -> ChatColor.stripColor(o1.getCategory().getDisplayName()).compareToIgnoreCase(ChatColor.stripColor(o2.getCategory().getDisplayName())));
+        }
+        if (sender instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user != null) {
+                abilityStream = abilityStream.filter(user::canUse);
+            }
+        }
+        Map<AbilityCategory, List<AbilityInformation>> abilities = new HashMap<>();
+        abilityStream.forEach(ability -> abilities.computeIfAbsent(ability.getCategory(), key -> new ArrayList<>()).add(ability));
+        abilities.forEach((key, value) -> {
+            if(!value.isEmpty()) {
+                String categoryPrefix = config.getCommandDisplayCategoryPrefixMessage();
+                String categoryMessage = key.getDisplayName() + ":";
+                if(!categoryPrefix.isBlank()) {
+                    categoryMessage = categoryPrefix + ChatColor.stripColor(categoryMessage);
+                }
+                sender.sendMessage(categoryMessage);
+                List<AbilityInformation> passives = new ArrayList<>();
+                List<AbilityInformation> sequences = new ArrayList<>();
+                sender.sendMessage(config.getCommandDisplayAbilitiesMessage());
+                value.forEach(ability -> {
+                    if (ability.isActivatedBy(ActivationMethod.PASSIVE)) {
+                        passives.add(ability);
+                    } else if(ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
+                        sequences.add(ability);
+                    } else {
+                        sender.spigot().sendMessage(ability.toBaseComponent());
+                    }
+                });
+                if(!passives.isEmpty()) {
+                    sender.sendMessage(config.getCommandDisplayPassivesMessage());
+                    passives.forEach(ability -> sender.spigot().sendMessage(ability.toBaseComponent()));
+                }
+                if(!sequences.isEmpty()) {
+                    sender.sendMessage(config.getCommandDisplaySequencesMessage());
+                    sequences.forEach(ability -> sender.spigot().sendMessage(ability.toBaseComponent()));
+                }
+            }
+        });
     }
 
     public void executeBind(CommandSender sender, Object[] args) {

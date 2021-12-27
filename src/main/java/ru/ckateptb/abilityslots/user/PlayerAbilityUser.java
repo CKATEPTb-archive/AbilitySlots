@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
+import ru.ckateptb.abilityslots.category.AbilityCategory;
+import ru.ckateptb.abilityslots.category.conditional.PermissionCategoryConditional;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
@@ -27,6 +29,8 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     @Getter
     private final EnergyBar energyBar;
     private final CompositeAbilityConditional abilityBindConditional = new CompositeAbilityConditional();
+    private final CompositeAbilityConditional abilityUseConditional = new CompositeAbilityConditional();
+    private final PermissionCategoryConditional categoryUseConditional = new PermissionCategoryConditional();
     private final Dao<PlayerAbilityTable, String> abilityStorage;
     private final String uuid;
 
@@ -38,6 +42,11 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
                 new CategoryAbilityConditional(),
                 new EnabledAbilityConditional(),
                 new CanBindToSlotAbilityConditional(),
+                new PermissionAbilityConditional()
+        );
+        this.abilityUseConditional.add(
+                new CategoryAbilityConditional(),
+                new EnabledAbilityConditional(),
                 new PermissionAbilityConditional()
         );
         this.abilityStorage = storage.getPlayerAbilityTables();
@@ -52,6 +61,13 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
 
     public boolean canBind(AbilityInformation ability) {
         return this.abilityBindConditional.matches(this, ability);
+    }
+
+    public boolean canUse(AbilityInformation ability) {
+        return this.abilityUseConditional.matches(this, ability);
+    }
+    public boolean canUse(AbilityCategory category) {
+        return this.categoryUseConditional.matches(this, category);
     }
 
     @Override

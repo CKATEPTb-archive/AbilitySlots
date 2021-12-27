@@ -26,6 +26,7 @@ public class AbilityCategoryService implements Listener {
     }
 
     public AbilityCategory getCategory(String name) {
+        if(name == null) return null;
         return categories.get(name.toLowerCase());
     }
 
