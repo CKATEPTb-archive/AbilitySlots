@@ -1,5 +1,6 @@
 package ru.ckateptb.abilityslots.user;
 
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
@@ -41,4 +42,6 @@ public interface AbilityUser {
     CompositeAbilityConditional getAbilityActivateConditional();
 
     void setAbilityActivateConditional(CompositeAbilityConditional conditional);
+
+    boolean canUse(Location location);
 }

@@ -1,6 +1,7 @@
 package ru.ckateptb.abilityslots.user;
 
 import lombok.Getter;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
@@ -53,6 +54,11 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
         this.uuid = livingEntity.getUniqueId().toString();
         this.loadAbilityStorageAsync();
         abilityInstanceService.createPassives(this);
+    }
+
+    @Override
+    public boolean canUse(Location location) {
+        return true;
     }
 
     public int getHeldItemSlot() {

@@ -1,6 +1,7 @@
 package ru.ckateptb.abilityslots.user;
 
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
@@ -97,6 +98,11 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
     @Override
     public void setAbilityActivateConditional(CompositeAbilityConditional conditional) {
         this.abilityActivateConditional = conditional;
+    }
+
+    @Override
+    public boolean canUse(Location location) {
+        return true;
     }
 
     @Override
