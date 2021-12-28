@@ -28,8 +28,8 @@ public class CompositeRemovalPolicy implements RemovalPolicy {
         return false;
     }
 
-    public void addPolicy(RemovalPolicy policy) {
-        this.policies.add(policy);
+    public void addPolicy(RemovalPolicy... policies) {
+        this.policies.addAll(Arrays.asList(policies));
     }
 
     public void removePolicyType(Class<? extends RemovalPolicy> type) {

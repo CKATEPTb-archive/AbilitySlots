@@ -8,13 +8,13 @@ import java.util.function.Supplier;
 
 public class OutOfRangeRemovalPolicy implements RemovalPolicy {
     private final Supplier<Location> fromSupplier;
-    private final AbilityUser user;
+    private final Supplier<Location> toSupplier;
     private final double range;
 
-    public OutOfRangeRemovalPolicy(AbilityUser user, double range, Supplier<Location> from) {
-        this.user = user;
+    public OutOfRangeRemovalPolicy(Supplier<Location> fromSupplier, Supplier<Location> toSupplier, double range) {
+        this.fromSupplier = fromSupplier;
+        this.toSupplier = toSupplier;
         this.range = range;
-        this.fromSupplier = from;
     }
 
     @Override
@@ -22,9 +22,9 @@ public class OutOfRangeRemovalPolicy implements RemovalPolicy {
         if (this.range == 0) return false;
 
         Location from = this.fromSupplier.get();
+        Location to = this.toSupplier.get();
 
-        if (!Objects.equals(from.getWorld(), user.getEntity().getWorld())) return true;
-
-        return from.distance(this.user.getEntity().getLocation()) >= this.range;
+        if (!Objects.equals(from.getWorld(), to.getWorld())) return true;
+        return from.distance(to) >= this.range;
     }
 }
