@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -16,8 +17,8 @@ import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.service.AbilitySequenceService;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
+import ru.ckateptb.abilityslots.service.AbilitySequenceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
@@ -135,15 +136,8 @@ public class AbilityHandler implements Listener {
         if (event.getHand() == EquipmentSlot.HAND) {
             Action action = event.getAction();
             if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-                RayTrace.CompositeResult trace = RayTrace.of(player).range(4).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
-                if (trace.entity() != null) {
-                    if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY))) {
-                        return;
-                    }
-                } else {
-                    if (isActivate(abilitySequenceService.registerAction(user, action == Action.RIGHT_CLICK_AIR ? SequenceAction.RIGHT_CLICK : SequenceAction.RIGHT_CLICK_BLOCK))) {
-                        return;
-                    }
+                if (isActivate(abilitySequenceService.registerAction(user, action == Action.RIGHT_CLICK_AIR ? SequenceAction.RIGHT_CLICK : SequenceAction.RIGHT_CLICK_BLOCK))) {
+                    return;
                 }
                 this.getHandledAbilities(user).forEach(ability -> {
                     ActivateResult result = activateAbility(user, ability, ActivationMethod.RIGHT_CLICK);
@@ -153,6 +147,14 @@ public class AbilityHandler implements Listener {
                 });
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void on(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        AbilityUser user = userService.getAbilityPlayer(player);
+        if (user == null) return;
+        abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY);
     }
 
     private boolean isActivate(ActivateResult result) {
