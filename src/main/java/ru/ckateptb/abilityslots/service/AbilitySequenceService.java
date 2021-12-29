@@ -1,12 +1,17 @@
-package ru.ckateptb.abilityslots.ability.sequence;
+package ru.ckateptb.abilityslots.service;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
-import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
+import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.service.AbilityInstanceService;
+import ru.ckateptb.abilityslots.ability.sequence.AbilityAction;
+import ru.ckateptb.abilityslots.ability.sequence.Sequence;
+import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 
 import java.lang.annotation.Annotation;
@@ -14,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
-public class AbilitySequenceService {
+public class AbilitySequenceService implements Listener {
     private final Map<AbilityInformation, List<AbilityAction>> sequences = new HashMap<>();
     private final Map<AbilityUser, List<AbilityAction>> userActions = new HashMap<>();
 
@@ -96,5 +101,12 @@ public class AbilitySequenceService {
                 return sequenceAction;
             }
         };
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void on(AbilitySlotsReloadEvent event) {
+        this.sequences.clear();
+        this.userActions.clear();
+        this.maxSize = 0;
     }
 }

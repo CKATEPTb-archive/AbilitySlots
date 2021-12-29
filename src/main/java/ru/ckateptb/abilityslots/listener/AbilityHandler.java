@@ -16,7 +16,7 @@ import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.ability.sequence.AbilitySequenceService;
+import ru.ckateptb.abilityslots.service.AbilitySequenceService;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
