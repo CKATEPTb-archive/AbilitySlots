@@ -1,5 +1,6 @@
 package ru.ckateptb.abilityslots.ability;
 
+import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
@@ -8,7 +9,12 @@ import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
+import ru.ckateptb.tablecloth.collision.Collider;
 import ru.ckateptb.tablecloth.spring.SpringContext;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public interface Ability {
     ActivateResult activate(AbilityUser user, ActivationMethod method);
@@ -25,6 +31,15 @@ public interface Ability {
         AbilityService abilityService = SpringContext.getInstance().getBean(AbilityService.class);
         AbilityInfo info = getClass().getAnnotation(AbilityInfo.class);
         return abilityService.getAbility(info.name());
+    }
+
+
+    default Collection<Collider> getColliders() {
+        return Collections.emptySet();
+    }
+
+    default AbilityCollisionResult destroyCollider(Ability destroyer, Collider destroyerCollider, Collider destroyedCollider) {
+        return AbilityCollisionResult.DESTROY_INSTANCE;
     }
 
     default AbilityInstanceService getAbilityInstanceService() {
