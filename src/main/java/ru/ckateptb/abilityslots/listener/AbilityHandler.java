@@ -67,13 +67,12 @@ public class AbilityHandler implements Listener {
         return list;
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
     public void onLeftClick(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
         PlayerAbilityUser user = userService.getAbilityPlayer(player);
         if (user == null) return;
-
-        RayTrace.CompositeResult trace = RayTrace.of(player).range(4).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
+        RayTrace.CompositeResult trace = RayTrace.of(player).range(5).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
         if (trace.entity() != null) {
             if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK_ENTITY))) {
                 return;
@@ -136,6 +135,7 @@ public class AbilityHandler implements Listener {
         if (event.getHand() == EquipmentSlot.HAND) {
             Action action = event.getAction();
             if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+                // RIGHT_CLICK_AIR doesn't work in 1.17.1
                 if (isActivate(abilitySequenceService.registerAction(user, action == Action.RIGHT_CLICK_AIR ? SequenceAction.RIGHT_CLICK : SequenceAction.RIGHT_CLICK_BLOCK))) {
                     return;
                 }
@@ -153,7 +153,7 @@ public class AbilityHandler implements Listener {
     public void on(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         AbilityUser user = userService.getAbilityPlayer(player);
-        if (user == null) return;
+        if (user == null || event.getHand() != EquipmentSlot.HAND) return;
         abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY);
     }
 
