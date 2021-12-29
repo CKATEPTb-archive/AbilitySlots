@@ -1,6 +1,6 @@
 package ru.ckateptb.abilityslots.ability.enums;
 
-public enum Action {
+public enum SequenceAction {
     LEFT_CLICK,
     LEFT_CLICK_ENTITY,
     LEFT_CLICK_BLOCK,

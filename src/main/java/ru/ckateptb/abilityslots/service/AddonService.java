@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
+import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
+import ru.ckateptb.abilityslots.ability.sequence.AbilitySequenceService;
+import ru.ckateptb.abilityslots.ability.sequence.Sequence;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.util.ClassPath;
 
@@ -32,11 +35,13 @@ public class AddonService {
     private final AbilitySlots plugin = AbilitySlots.getInstance();
     private final List<Class<?>> loadedClasses = new ArrayList<>();
     private final AbilityCategoryService abilityCategoryService;
+    private final AbilitySequenceService abilitySequenceService;
     private final AbilityService abilityService;
     private final String nameRegex = "[a-zA-Z]+";
 
-    public AddonService(AbilityCategoryService abilityCategoryService, AbilityService abilityService) {
+    public AddonService(AbilityCategoryService abilityCategoryService, AbilitySequenceService abilitySequenceService, AbilityService abilityService) {
         this.abilityCategoryService = abilityCategoryService;
+        this.abilitySequenceService = abilitySequenceService;
         this.abilityService = abilityService;
     }
 
@@ -114,6 +119,13 @@ public class AddonService {
                                     log.info("Found a new ability ({})", ability.getName());
                                     category.registerAbility(ability);
                                     abilityService.registerAbility(ability);
+                                    if(ability.isActivatedBy(ActivationMethod.SEQUENCE)){
+                                        if (!AnnotatedElementUtils.isAnnotated(cl, Sequence.class)) {
+                                            log.warn("Ability ({}) activate by SEQUENCE, but the developer made a mistake and did not add Sequence annotation, please pass this information to him", ability.getName());
+                                        } else {
+                                            abilitySequenceService.registerSequence(ability, cl.getAnnotation(Sequence.class));
+                                        }
+                                    }
                                 } else {
                                     log.info("Found a new ability ({}), but the developer made a mistake. The name must contain characters from a-zA-Z", categoryName);
                                 }

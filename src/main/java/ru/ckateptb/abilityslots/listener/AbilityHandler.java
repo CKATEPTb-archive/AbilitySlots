@@ -1,6 +1,7 @@
 package ru.ckateptb.abilityslots.listener;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -13,12 +14,15 @@ import org.springframework.stereotype.Component;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
+import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.ability.sequence.AbilitySequenceService;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
+import ru.ckateptb.tablecloth.collision.RayTrace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +31,14 @@ import java.util.List;
 public class AbilityHandler implements Listener {
     private final AbilityUserService userService;
     private final AbilityInstanceService abilityInstanceService;
+    private final AbilitySequenceService abilitySequenceService;
     private final AbilityService abilityService;
 
-    public AbilityHandler(AbilityUserService userService, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
+    public AbilityHandler(AbilityUserService userService, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySequenceService abilitySequenceService) {
         this.userService = userService;
         this.abilityService = abilityService;
         this.abilityInstanceService = abilityInstanceService;
+        this.abilitySequenceService = abilitySequenceService;
     }
 
     public ActivateResult activateAbility(AbilityUser abilityUser, AbilityInformation ability, ActivationMethod method) {
@@ -40,11 +46,12 @@ public class AbilityHandler implements Listener {
 
         if (ability == null
                 || !ability.isActivatedBy(method)
-                || !user.canActivate(ability)) return ActivateResult.NOT_ACTIVATE;
+                || !user.canActivate(ability)
+        ) return ActivateResult.NOT_ACTIVATE;
 
         Ability instance = ability.createAbility();
         ActivateResult activateResult = instance.activate(user, method);
-        if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+        if (isActivate(activateResult)) {
             abilityInstanceService.registerInstance(user, instance);
         }
 
@@ -61,11 +68,28 @@ public class AbilityHandler implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onLeftClick(PlayerAnimationEvent event) {
-        PlayerAbilityUser user = userService.getAbilityPlayer(event.getPlayer());
+        Player player = event.getPlayer();
+        PlayerAbilityUser user = userService.getAbilityPlayer(player);
         if (user == null) return;
+
+        RayTrace.CompositeResult trace = RayTrace.of(player).range(4).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
+        if (trace.entity() != null) {
+            if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK_ENTITY))) {
+                return;
+            }
+        } else if (trace.block() != null) {
+            if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK_BLOCK))) {
+                return;
+            }
+        } else {
+            if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK))) {
+                return;
+            }
+        }
+
         this.getHandledAbilities(user).forEach(ability -> {
             ActivateResult result = activateAbility(user, ability, ActivationMethod.LEFT_CLICK);
-            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+            if (shouldCancelEvent(result)) {
                 event.setCancelled(true);
             }
         });
@@ -75,9 +99,15 @@ public class AbilityHandler implements Listener {
     public void onSneak(PlayerToggleSneakEvent event) {
         AbilityUser user = userService.getAbilityPlayer(event.getPlayer());
         if (user == null) return;
+
+        boolean sneaking = event.isSneaking();
+        if (isActivate(abilitySequenceService.registerAction(user, sneaking ? SequenceAction.SNEAK : SequenceAction.SNEAK_RELEASE))) {
+            return;
+        }
+
         this.getHandledAbilities(user).forEach(ability -> {
-            ActivateResult result = activateAbility(user, ability, event.isSneaking() ? ActivationMethod.SNEAK : ActivationMethod.SNEAK_RELEASE);
-            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+            ActivateResult result = activateAbility(user, ability, sneaking ? ActivationMethod.SNEAK : ActivationMethod.SNEAK_RELEASE);
+            if (shouldCancelEvent(result)) {
                 event.setCancelled(true);
             }
         });
@@ -91,7 +121,7 @@ public class AbilityHandler implements Listener {
         if (user == null) return;
         this.getHandledAbilities(user).forEach(ability -> {
             ActivateResult result = activateAbility(user, ability, ActivationMethod.FALL);
-            if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+            if (shouldCancelEvent(result)) {
                 event.setCancelled(true);
             }
         });
@@ -99,18 +129,37 @@ public class AbilityHandler implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        AbilityUser user = userService.getAbilityPlayer(event.getPlayer());
+        Player player = event.getPlayer();
+        AbilityUser user = userService.getAbilityPlayer(player);
         if (user == null) return;
         if (event.getHand() == EquipmentSlot.HAND) {
             Action action = event.getAction();
             if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+                RayTrace.CompositeResult trace = RayTrace.of(player).range(4).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
+                if (trace.entity() != null) {
+                    if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY))) {
+                        return;
+                    }
+                } else {
+                    if (isActivate(abilitySequenceService.registerAction(user, action == Action.RIGHT_CLICK_AIR ? SequenceAction.RIGHT_CLICK : SequenceAction.RIGHT_CLICK_BLOCK))) {
+                        return;
+                    }
+                }
                 this.getHandledAbilities(user).forEach(ability -> {
                     ActivateResult result = activateAbility(user, ability, ActivationMethod.RIGHT_CLICK);
-                    if (result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                    if (shouldCancelEvent(result)) {
                         event.setCancelled(true);
                     }
                 });
             }
         }
+    }
+
+    private boolean isActivate(ActivateResult result) {
+        return result == ActivateResult.ACTIVATE || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT;
+    }
+
+    private boolean shouldCancelEvent(ActivateResult result) {
+        return result == ActivateResult.NOT_ACTIVATE_AND_CANCEL_EVENT || result == ActivateResult.ACTIVATE_AND_CANCEL_EVENT;
     }
 }

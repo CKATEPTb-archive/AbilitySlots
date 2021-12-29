@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 
 @Service
 @EnableScheduling
-public class CollisionService {
+public class AbilityCollisionService {
     private final AbilityInstanceService abilityInstanceService;
 
-    public CollisionService(AbilityInstanceService abilityInstanceService) {
+    public AbilityCollisionService(AbilityInstanceService abilityInstanceService) {
         this.abilityInstanceService = abilityInstanceService;
     }
 
