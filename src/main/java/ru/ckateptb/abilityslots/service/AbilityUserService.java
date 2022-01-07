@@ -77,6 +77,7 @@ public class AbilityUserService implements Listener {
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
+
         users.remove(event.getPlayer());
     }
 
@@ -84,7 +85,8 @@ public class AbilityUserService implements Listener {
     public void on(EntityRemoveFromWorldEvent event) {
         if (event.getEntity() instanceof LivingEntity entity) {
             if (!(entity instanceof Player)) {
-                users.remove(entity);
+                AbilityUser user = users.remove(entity);
+                abilityInstanceService.destroyAbilityUserInstances(user);
             }
         }
     }
