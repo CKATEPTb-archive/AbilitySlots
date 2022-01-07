@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ru.ckateptb"
-version = "1.0.1-SNAPSHOT"
+version = "1.0.2-SNAPSHOT"
 var githubName = "AbilitySlots"
 var githubOwner = "CKATEPTb"
 
@@ -74,7 +74,13 @@ publishing {
     publications {
         publications.create<MavenPublication>("maven") {
             artifacts {
-                from(components["java"])
+                artifact(tasks.shadowJar) {
+                    classifier = ""
+                }
+                if (!isSnapshot()) {
+                    artifact(tasks.javadoc)
+                }
+                artifact(tasks["sourcesJar"])
             }
             pom {
                 name.set(project.name)
