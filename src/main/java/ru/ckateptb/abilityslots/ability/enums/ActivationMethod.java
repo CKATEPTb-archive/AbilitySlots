@@ -7,5 +7,6 @@ public enum ActivationMethod {
     SNEAK,
     SNEAK_RELEASE,
     FALL,
-    SEQUENCE
+    SEQUENCE,
+    DAMAGE // WHEN AbilityUser take damage
 }

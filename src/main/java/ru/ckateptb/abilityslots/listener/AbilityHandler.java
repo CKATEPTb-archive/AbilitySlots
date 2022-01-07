@@ -61,6 +61,7 @@ public class AbilityHandler implements Listener {
 
     public List<AbilityInformation> getHandledAbilities(AbilityUser user) {
         List<AbilityInformation> list = new ArrayList<>(abilityService.getPassiveAbilities());
+        list.addAll(abilityService.getDamageAbilities());
         list.removeIf(passive -> !abilityInstanceService.hasAbility(user, passive));
         AbilityInformation selectedAbility = user.getSelectedAbility();
         list.add(selectedAbility);
@@ -107,6 +108,19 @@ public class AbilityHandler implements Listener {
 
         this.getHandledAbilities(user).forEach(ability -> {
             ActivateResult result = activateAbility(user, ability, sneaking ? ActivationMethod.SNEAK : ActivationMethod.SNEAK_RELEASE);
+            if (shouldCancelEvent(result)) {
+                event.setCancelled(true);
+            }
+        });
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity livingEntity)) return;
+        AbilityUser user = userService.getAbilityUser(livingEntity);
+        if (user == null) return;
+        this.getHandledAbilities(user).forEach(ability -> {
+            ActivateResult result = activateAbility(user, ability, ActivationMethod.FALL);
             if (shouldCancelEvent(result)) {
                 event.setCancelled(true);
             }

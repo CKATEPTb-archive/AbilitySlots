@@ -17,11 +17,15 @@ import java.util.Map;
 public class AbilityService implements Listener {
     private final Map<String, AbilityInformation> abilities = new HashMap<>();
     private final Map<String, AbilityInformation> passives = new HashMap<>();
+    private final Map<String, AbilityInformation> damages = new HashMap<>();
 
     public void registerAbility(AbilityInformation ability) {
         String name = ability.getName().toLowerCase();
         if (ability.isActivatedBy(ActivationMethod.PASSIVE)) {
             passives.put(name, ability);
+        }
+        if (ability.isActivatedBy(ActivationMethod.DAMAGE)) {
+            damages.put(name, ability);
         }
         abilities.put(name, ability);
     }
@@ -37,6 +41,10 @@ public class AbilityService implements Listener {
 
     public Collection<AbilityInformation> getPassiveAbilities() {
         return Collections.unmodifiableCollection(passives.values());
+    }
+
+    public Collection<AbilityInformation> getDamageAbilities() {
+        return Collections.unmodifiableCollection(damages.values());
     }
 
     @EventHandler(priority = EventPriority.LOW)
