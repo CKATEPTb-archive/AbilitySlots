@@ -120,7 +120,7 @@ public class AbilityHandler implements Listener {
         AbilityUser user = userService.getAbilityUser(livingEntity);
         if (user == null) return;
         this.getHandledAbilities(user).forEach(ability -> {
-            ActivateResult result = activateAbility(user, ability, ActivationMethod.FALL);
+            ActivateResult result = activateAbility(user, ability, ActivationMethod.DAMAGE);
             if (shouldCancelEvent(result)) {
                 event.setCancelled(true);
             }
