@@ -13,12 +13,17 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.ckateptb.abilityslots.ability.Ability;
+import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
+import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
+import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -67,6 +72,26 @@ public class AbilityUserService implements Listener {
                 user.updateEnergyBar();
             }
         }), executorService);
+    }
+
+    @Scheduled(fixedRate = 20)
+    public void updatePassives() {
+        Collection<AbilityInformation> passives = abilityService.getPassiveAbilities();
+        for (AbilityInformation passive : passives) {
+            for (AbilityUser user : users.values()) {
+                if (passive.isEnabled() && user.canActivate(passive)) {
+                    if (!abilityInstanceService.hasAbility(user, passive)) {
+                        Ability ability = passive.createAbility();
+                        ActivateResult activateResult = ability.activate(user, ActivationMethod.PASSIVE);
+                        if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
+                            abilityInstanceService.registerInstance(user, ability);
+                        }
+                    }
+                } else if (abilityInstanceService.hasAbility(user, passive)) {
+                    abilityInstanceService.destroyInstanceType(user, passive);
+                }
+            }
+        }
     }
 
     @SneakyThrows
