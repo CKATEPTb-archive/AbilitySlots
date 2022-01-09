@@ -102,8 +102,10 @@ public class AbilityUserService implements Listener {
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
-
-        users.remove(event.getPlayer());
+        AbilityUser user = users.remove(event.getPlayer());
+        if(user != null) {
+            abilityInstanceService.destroyAbilityUserInstances(user);
+        }
     }
 
     @EventHandler
@@ -111,7 +113,9 @@ public class AbilityUserService implements Listener {
         if (event.getEntity() instanceof LivingEntity entity) {
             if (!(entity instanceof Player)) {
                 AbilityUser user = users.remove(entity);
-                abilityInstanceService.destroyAbilityUserInstances(user);
+                if(user != null) {
+                    abilityInstanceService.destroyAbilityUserInstances(user);
+                }
             }
         }
     }
@@ -120,7 +124,10 @@ public class AbilityUserService implements Listener {
     public void on(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
         if (!(entity instanceof Player)) {
-            users.remove(entity);
+            AbilityUser user = users.remove(entity);
+            if(user != null) {
+                abilityInstanceService.destroyAbilityUserInstances(user);
+            }
         }
     }
 
