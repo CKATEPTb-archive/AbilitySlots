@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DestroyAbilities {
-    Class<? extends Ability>[] destroyAbilities();
+public @interface CollisionParticipant {
+    Class<? extends Ability>[] destroyAbilities() default {};
 }

@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
-import ru.ckateptb.abilityslots.ability.info.DestroyAbilities;
+import ru.ckateptb.abilityslots.ability.info.CollisionParticipant;
 import ru.ckateptb.tablecloth.collision.Collider;
 
 import java.util.*;
@@ -24,13 +24,13 @@ public class AbilityCollisionService {
     @Scheduled(fixedRate = 1)
     public void update() {
         Collection<Ability> instances = abilityInstanceService.getInstances().stream()
-                .filter(ability -> AnnotatedElementUtils.isAnnotated(ability.getClass(), DestroyAbilities.class))
+                .filter(ability -> AnnotatedElementUtils.isAnnotated(ability.getClass(), CollisionParticipant.class))
                 .filter(ability -> !ability.getColliders().isEmpty())
                 .collect(Collectors.toList());
         List<Ability> toRemove = new ArrayList<>();
         for (Ability destroyer : instances) {
             Class<? extends Ability> destroyerClass = destroyer.getClass();
-            DestroyAbilities destroyerInfo = destroyerClass.getAnnotation(DestroyAbilities.class);
+            CollisionParticipant destroyerInfo = destroyerClass.getAnnotation(CollisionParticipant.class);
             List<Class<? extends Ability>> destroyerDestroyAbilities = Arrays.asList(destroyerInfo.destroyAbilities());
             if (destroyerDestroyAbilities.isEmpty()) continue;
 
@@ -47,7 +47,7 @@ public class AbilityCollisionService {
 
                 boolean isTargetDestroyed = false;
 
-                DestroyAbilities targetInfo = targetClass.getAnnotation(DestroyAbilities.class);
+                CollisionParticipant targetInfo = targetClass.getAnnotation(CollisionParticipant.class);
                 List<Class<? extends Ability>> targetDestroyAbilities = Arrays.asList(targetInfo.destroyAbilities());
                 boolean collideDestroyer = targetDestroyAbilities.contains(destroyerClass);
                 while (true) {
