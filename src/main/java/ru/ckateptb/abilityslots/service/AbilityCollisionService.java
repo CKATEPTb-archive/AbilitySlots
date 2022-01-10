@@ -83,7 +83,9 @@ public class AbilityCollisionService {
 
     private Map.Entry<Collider, Collider> checkCollision(Collection<Collider> firstColliders, Collection<Collider> secondColliders) {
         for (Collider firstCollider : firstColliders) {
+            if(firstCollider == null) continue;
             for (Collider secondCollider : secondColliders) {
+                if(secondCollider == null) continue;
                 if (firstCollider.intersects(secondCollider)) {
                     return Map.entry(firstCollider, secondCollider);
                 }
