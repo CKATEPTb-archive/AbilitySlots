@@ -6,7 +6,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BlockIterator;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
@@ -64,7 +63,41 @@ public interface AbilityUser {
 
     /**
      * Attempt to find a possible block source that matches the given predicate.
-     * @param range the max range to check
+     *
+     * @param range         the max range to check
+     * @return the source Vector3d
+     */
+    default @Nullable Vector3d findPosition(double range) {
+        return findPosition(range, true);
+    }
+
+    /**
+     * Attempt to find a possible block source that matches the given predicate.
+     *
+     * @param range         the max range to check
+     * @param ignoreLiquids – true to scan through liquids
+     * @return the source Vector3d
+     */
+    default @Nullable Vector3d findPosition(double range, boolean ignoreLiquids) {
+        return findPosition(range, entity -> true, ignoreLiquids);
+    }
+
+    /**
+     * Attempt to find a possible block source that matches the given predicate.
+     *
+     * @param range         the max range to check
+     * @param predicate     the predicate to check
+     * @param ignoreLiquids – true to scan through liquids
+     * @return the source Vector3d
+     */
+    default @Nullable Vector3d findPosition(double range, Predicate<Entity> predicate, boolean ignoreLiquids) {
+        return RayTrace.of(getEntity()).range(range).filter(predicate).ignoreLiquids(ignoreLiquids).result(getEntity().getWorld()).position();
+    }
+
+    /**
+     * Attempt to find a possible block source that matches the given predicate.
+     *
+     * @param range     the max range to check
      * @param predicate the predicate to check
      * @return the source block if one was found, null otherwise
      */
@@ -87,7 +120,8 @@ public interface AbilityUser {
 
     /**
      * Attempt to find a possible block source that matches the given predicate.
-     * @param range the max range to check
+     *
+     * @param range     the max range to check
      * @param predicate the predicate to check
      * @return the source LivingEntity if one was found, null otherwise
      */
@@ -102,7 +136,8 @@ public interface AbilityUser {
 
     /**
      * Attempt to find a possible block source that matches the given predicate.
-     * @param range the max range to check
+     *
+     * @param range        the max range to check
      * @param ignoreBlocks – true to scan through blocks
      * @return the source Entity if one was found, null otherwise
      */
@@ -149,5 +184,13 @@ public interface AbilityUser {
 
     default void destroyAbilities() {
         SpringContext.getInstance().getBean(AbilityInstanceService.class).destroyAbilityUserInstances(this);
+    }
+
+    default void setCooldown(Ability ability) {
+        setCooldown(ability.getInformation());
+    }
+
+    default void setCooldown(AbilityInformation information) {
+        setCooldown(information, information.getCooldown());
     }
 }
