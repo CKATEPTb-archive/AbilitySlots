@@ -5,6 +5,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.ckateptb.abilityslots.ability.Ability;
@@ -192,5 +193,9 @@ public interface AbilityUser {
 
     default void setCooldown(AbilityInformation information) {
         setCooldown(information, information.getCooldown());
+    }
+
+    default boolean isSneaking() {
+        return !(getEntity() instanceof Player player) || player.isSneaking();
     }
 }
