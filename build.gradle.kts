@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ru.ckateptb"
-version = "1.0.7-SNAPSHOT"
+version = "1.0.9-SNAPSHOT"
 var githubName = "AbilitySlots"
 var githubOwner = "CKATEPTb"
 
