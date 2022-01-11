@@ -42,18 +42,14 @@ dependencies {
 
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
-    compileOnly("ru.ckateptb:tablecloth:+")
+    compileOnly("ru.ckateptb:tablecloth:1.0.4-SNAPSHOT")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
-    implementation("xyz.xenondevs:particle:1.7")
 }
 
 
 tasks {
     shadowJar {
         archiveFileName.set("${project.name}-${project.version}.${archiveExtension.getOrElse("jar")}")
-        dependencies {
-            relocate("xyz.xenondevs.particle", "ru.ckateptb.abilityslots.particle")
-        }
     }
     build {
         dependsOn(reobfJar, shadowJar)

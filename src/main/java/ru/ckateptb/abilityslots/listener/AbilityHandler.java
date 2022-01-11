@@ -1,5 +1,8 @@
 package ru.ckateptb.abilityslots.listener;
 
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,10 +26,12 @@ import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
-import ru.ckateptb.tablecloth.collision.RayTrace;
+import ru.ckateptb.tablecloth.collision.collider.RayCollider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class AbilityHandler implements Listener {
@@ -73,12 +78,14 @@ public class AbilityHandler implements Listener {
         Player player = event.getPlayer();
         PlayerAbilityUser user = userService.getAbilityPlayer(player);
         if (user == null) return;
-        RayTrace.CompositeResult trace = RayTrace.of(player).range(5).type(RayTrace.Type.ENTITY).filter(e -> e instanceof LivingEntity && e != player).result(player.getWorld());
-        if (trace.entity() != null) {
+        RayCollider rayCollider = new RayCollider(player, 5);
+        Optional<Entity> entityOptional = rayCollider.getEntity(entity -> entity instanceof LivingEntity && entity != player);
+        Optional<Map.Entry<Block, BlockFace>> blockOptional = rayCollider.getFirstBlock(false, true);
+        if (entityOptional.isPresent()) {
             if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK_ENTITY))) {
                 return;
             }
-        } else if (trace.block() != null) {
+        } else if (blockOptional.isPresent()) {
             if (isActivate(abilitySequenceService.registerAction(user, SequenceAction.LEFT_CLICK_BLOCK))) {
                 return;
             }
