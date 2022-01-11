@@ -14,9 +14,8 @@ import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
-import ru.ckateptb.tablecloth.collision.RayTrace;
-import ru.ckateptb.tablecloth.math.FastMath;
-import ru.ckateptb.tablecloth.math.Vector3d;
+import ru.ckateptb.tablecloth.collision.collider.RayCollider;
+import ru.ckateptb.tablecloth.math.ImmutableVector;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.Collection;
@@ -68,7 +67,7 @@ public interface AbilityUser {
      * @param range         the max range to check
      * @return the source Vector3d
      */
-    default @Nullable Vector3d findPosition(double range) {
+    default @Nullable ImmutableVector findPosition(double range) {
         return findPosition(range, true);
     }
 
@@ -79,7 +78,7 @@ public interface AbilityUser {
      * @param ignoreLiquids – true to scan through liquids
      * @return the source Vector3d
      */
-    default @Nullable Vector3d findPosition(double range, boolean ignoreLiquids) {
+    default @Nullable ImmutableVector findPosition(double range, boolean ignoreLiquids) {
         return findPosition(range, entity -> true, ignoreLiquids);
     }
 
@@ -91,8 +90,8 @@ public interface AbilityUser {
      * @param ignoreLiquids – true to scan through liquids
      * @return the source Vector3d
      */
-    default @Nullable Vector3d findPosition(double range, Predicate<Entity> predicate, boolean ignoreLiquids) {
-        return RayTrace.of(getEntity()).range(range).filter(predicate).ignoreLiquids(ignoreLiquids).result(getEntity().getWorld()).position();
+    default @Nullable ImmutableVector findPosition(double range, Predicate<Entity> predicate, boolean ignoreLiquids) {
+        return new ImmutableVector(new RayCollider(getEntity(), 5).getPosition(false, false, ignoreLiquids, true, predicate, block -> true).orElse(getEyeLocation()));
     }
 
     /**
@@ -103,20 +102,7 @@ public interface AbilityUser {
      * @return the source block if one was found, null otherwise
      */
     default @Nullable Block findBlock(double range, Predicate<Block> predicate) {
-        BlockIterator it = new BlockIterator(getEntity(), Math.min(100, FastMath.ceil(range)));
-        while (it.hasNext()) {
-            Block block = it.next();
-            if (block.getType().isAir()) {
-                continue;
-            }
-            if (predicate.test(block)) {
-                return block;
-            }
-            if (!block.isPassable()) {
-                break;
-            }
-        }
-        return null;
+        return new RayCollider(getEntity(), range).getBlock(false, false, predicate.and(block -> !block.getType().isAir())).orElse(null);
     }
 
     /**
@@ -127,12 +113,8 @@ public interface AbilityUser {
      * @return the source LivingEntity if one was found, null otherwise
      */
     default @Nullable LivingEntity findLivingEntity(double range, Predicate<LivingEntity> predicate) {
-        LivingEntity entity = getEntity();
-        return (LivingEntity) RayTrace.of(entity)
-                .range(range)
-                .type(RayTrace.Type.ENTITY)
-                .filter(e -> e instanceof LivingEntity target && target != entity && predicate.test(target))
-                .result(entity.getWorld()).entity();
+        LivingEntity livingEntity = getEntity();
+        return (LivingEntity) new RayCollider(livingEntity, range).getEntity(entity -> entity instanceof LivingEntity target && target != livingEntity && predicate.test(target)).orElse(null);
     }
 
     /**
@@ -147,16 +129,16 @@ public interface AbilityUser {
         return entity.getTargetEntity(range, ignoreBlocks);
     }
 
-    default Vector3d getLocation() {
-        return new Vector3d(getEntity().getLocation());
+    default ImmutableVector getLocation() {
+        return new ImmutableVector(getEntity().getLocation());
     }
 
-    default Vector3d getEyeLocation() {
-        return new Vector3d(getEntity().getEyeLocation());
+    default ImmutableVector getEyeLocation() {
+        return new ImmutableVector(getEntity().getEyeLocation());
     }
 
-    default Vector3d getDirection() {
-        return new Vector3d(getEntity().getEyeLocation().getDirection());
+    default ImmutableVector getDirection() {
+        return new ImmutableVector(getEntity().getEyeLocation().getDirection());
     }
 
     default World getWorld() {
