@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ru.ckateptb"
-version = "1.0.6-SNAPSHOT"
+version = "1.0.7-SNAPSHOT"
 var githubName = "AbilitySlots"
 var githubOwner = "CKATEPTb"
 
@@ -44,12 +44,16 @@ dependencies {
 
     compileOnly("ru.ckateptb:tablecloth:+")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
+    implementation("xyz.xenondevs:particle:1.7")
 }
 
 
 tasks {
     shadowJar {
         archiveFileName.set("${project.name}-${project.version}.${archiveExtension.getOrElse("jar")}")
+        dependencies {
+            relocate("xyz.xenondevs.particle", "ru.ckateptb.abilityslots.particle")
+        }
     }
     build {
         dependsOn(reobfJar, shadowJar)
