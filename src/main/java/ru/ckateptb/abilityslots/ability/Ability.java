@@ -1,5 +1,8 @@
 package ru.ckateptb.abilityslots.ability;
 
+import lombok.Getter;
+import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -14,35 +17,40 @@ import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-public interface Ability {
-    ActivateResult activate(AbilityUser user, ActivationMethod method);
+@Getter
+public abstract class Ability {
+    private AbilityUser user;
+    private LivingEntity livingEntity;
+    private World world;
 
-    UpdateResult update();
+    public abstract ActivateResult activate(ActivationMethod method);
 
-    void destroy();
+    public abstract UpdateResult update();
 
-    AbilityUser getUser();
+    public abstract void destroy();
 
-    void setUser(AbilityUser user);
+    public void setUser(AbilityUser user) {
+        this.user = user;
+        this.livingEntity = user.getEntity();
+        this.world = livingEntity.getWorld();
+    }
 
-    default AbilityInformation getInformation() {
+    public AbilityInformation getInformation() {
         AbilityService abilityService = SpringContext.getInstance().getBean(AbilityService.class);
         AbilityInfo info = getClass().getAnnotation(AbilityInfo.class);
         return abilityService.getAbility(info.name());
     }
 
-
-    default Collection<Collider> getColliders() {
+    public Collection<Collider> getColliders() {
         return Collections.emptySet();
     }
 
-    default AbilityCollisionResult destroyCollider(Ability destroyer, Collider destroyerCollider, Collider destroyedCollider) {
+    public AbilityCollisionResult destroyCollider(Ability destroyer, Collider destroyerCollider, Collider destroyedCollider) {
         return AbilityCollisionResult.DESTROY_INSTANCE;
     }
 
-    default AbilityInstanceService getAbilityInstanceService() {
+    public AbilityInstanceService getAbilityInstanceService() {
         return SpringContext.getInstance().getBean(AbilityInstanceService.class);
     }
 }

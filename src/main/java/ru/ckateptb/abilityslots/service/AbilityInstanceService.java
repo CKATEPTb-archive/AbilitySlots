@@ -87,7 +87,8 @@ public class AbilityInstanceService implements Listener {
             if (!passive.isEnabled()) continue;
             if (!user.canActivate(passive)) continue;
             Ability ability = passive.createAbility();
-            ActivateResult activateResult = ability.activate(user, ActivationMethod.PASSIVE);
+            ability.setUser(user);
+            ActivateResult activateResult = ability.activate(ActivationMethod.PASSIVE);
             if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
                 this.registerInstance(user, ability);
             }

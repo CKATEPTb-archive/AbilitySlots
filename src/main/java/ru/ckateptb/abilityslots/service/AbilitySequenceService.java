@@ -54,7 +54,8 @@ public class AbilitySequenceService implements Listener {
         sequences.forEach((key, value) -> {
             if (tailMatches(actions, value) && user.canActivate(key)) {
                 Ability instance = key.createAbility();
-                ActivateResult activateResult = instance.activate(user, ActivationMethod.SEQUENCE);
+                instance.setUser(user);
+                ActivateResult activateResult = instance.activate(ActivationMethod.SEQUENCE);
                 if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
                     result.set(activateResult);
                     abilityInstanceService.registerInstance(user, instance);
