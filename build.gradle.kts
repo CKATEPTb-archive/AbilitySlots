@@ -42,7 +42,7 @@ dependencies {
 
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
-    compileOnly("ru.ckateptb:tablecloth:1.0.4-SNAPSHOT")
+    compileOnly("ru.ckateptb:tablecloth:1.0.5-SNAPSHOT")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
 }
 
