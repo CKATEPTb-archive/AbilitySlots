@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ru.ckateptb"
-version = "1.0.14-SNAPSHOT"
+version = "1.1.1"
 var githubName = "AbilitySlots"
 var githubOwner = "CKATEPTb"
 
@@ -23,17 +23,18 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.codemc.org/repository/maven-public/")
-    maven {
-        url = uri("https://maven.pkg.github.com/CKATEPTb/Tablecloth")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
+//    maven {
+//        url = uri("https://maven.pkg.github.com/CKATEPTb/Tablecloth")
+//        credentials {
+//            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+//            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+//        }
+//    }
 }
 
 dependencies {
@@ -42,7 +43,7 @@ dependencies {
 
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
-    compileOnly("ru.ckateptb:tablecloth:1.0.5-SNAPSHOT")
+    compileOnly("ru.ckateptb:tablecloth:+")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
 }
 
@@ -82,36 +83,36 @@ publishing {
                 }
                 artifact(tasks["sourcesJar"])
             }
-            pom {
-                name.set(project.name)
-                url.set("https://github.com/${githubOwner}/${githubName}")
-                licenses {
-                    license {
-                        name.set("The GNU Affero General Public License, Version 3.0")
-                        url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:https://github.com/${githubOwner}/${githubName}.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/${githubOwner}/${githubName}.git")
-                    url.set("https://github.com/${githubOwner}/${githubName}")
-                }
-                issueManagement {
-                    system.set("Github")
-                    url.set("https://github.com/${githubOwner}/${githubName}/issues")
-                }
-            }
+//            pom {
+//                name.set(project.name)
+//                url.set("https://github.com/${githubOwner}/${githubName}")
+//                licenses {
+//                    license {
+//                        name.set("The GNU Affero General Public License, Version 3.0")
+//                        url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
+//                    }
+//                }
+//                scm {
+//                    connection.set("scm:git:https://github.com/${githubOwner}/${githubName}.git")
+//                    developerConnection.set("scm:git:ssh://git@github.com/${githubOwner}/${githubName}.git")
+//                    url.set("https://github.com/${githubOwner}/${githubName}")
+//                }
+//                issueManagement {
+//                    system.set("Github")
+//                    url.set("https://github.com/${githubOwner}/${githubName}/issues")
+//                }
+//            }
         }
-        repositories {
-            maven {
-                name = githubName
-                url = uri("https://maven.pkg.github.com/${githubOwner}/${githubName}")
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
-        }
+//        repositories {
+//            maven {
+//                name = githubName
+//                url = uri("https://maven.pkg.github.com/${githubOwner}/${githubName}")
+//                credentials {
+//                    username = System.getenv("GITHUB_ACTOR")
+//                    password = System.getenv("GITHUB_TOKEN")
+//                }
+//            }
+//        }
     }
 }
 

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022 CKATEPTb <https://github.com/CKATEPTb>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package ru.ckateptb.abilityslots.service;
 
 import lombok.SneakyThrows;
@@ -118,7 +135,7 @@ public class AddonService {
                                     log.info("Found a new ability ({})", ability.getName());
                                     category.registerAbility(ability);
                                     abilityService.registerAbility(ability);
-                                    if(ability.isActivatedBy(ActivationMethod.SEQUENCE)){
+                                    if (ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
                                         if (!AnnotatedElementUtils.isAnnotated(cl, Sequence.class)) {
                                             log.warn("Ability ({}) activate by SEQUENCE, but the developer made a mistake and did not add Sequence annotation, please pass this information to him", ability.getName());
                                         } else {

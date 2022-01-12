@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022 CKATEPTb <https://github.com/CKATEPTb>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package ru.ckateptb.abilityslots.service;
 
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -37,7 +54,7 @@ public class AbilityCollisionService {
             boolean isDestroyerDestroyed = false;
 
             for (Ability target : instances) {
-                if(isDestroyerDestroyed) {
+                if (isDestroyerDestroyed) {
                     break;
                 }
                 if (destroyer.getUser().equals(target.getUser())) continue;
@@ -73,7 +90,7 @@ public class AbilityCollisionService {
                     toRemove.add(target);
                 }
             }
-            if(isDestroyerDestroyed) {
+            if (isDestroyerDestroyed) {
                 toRemove.add(destroyer);
             }
         }
@@ -83,9 +100,9 @@ public class AbilityCollisionService {
 
     private Map.Entry<Collider, Collider> checkCollision(Collection<Collider> firstColliders, Collection<Collider> secondColliders) {
         for (Collider firstCollider : firstColliders) {
-            if(firstCollider == null) continue;
+            if (firstCollider == null) continue;
             for (Collider secondCollider : secondColliders) {
-                if(secondCollider == null) continue;
+                if (secondCollider == null) continue;
                 if (firstCollider.intersects(secondCollider)) {
                     return Map.entry(firstCollider, secondCollider);
                 }

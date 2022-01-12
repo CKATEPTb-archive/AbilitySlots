@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022 CKATEPTb <https://github.com/CKATEPTb>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package ru.ckateptb.abilityslots.service;
 
 import org.bukkit.event.EventHandler;
@@ -22,10 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AbilitySequenceService implements Listener {
     private final Map<AbilityInformation, List<AbilityAction>> sequences = new HashMap<>();
     private final Map<AbilityUser, List<AbilityAction>> userActions = new HashMap<>();
-
-    private int maxSize = 0;
-
     private final AbilityInstanceService abilityInstanceService;
+    private int maxSize = 0;
 
     public AbilitySequenceService(AbilityInstanceService abilityInstanceService) {
         this.abilityInstanceService = abilityInstanceService;
@@ -44,7 +59,13 @@ public class AbilitySequenceService implements Listener {
         AbilityAction abilityAction = this.createAbilityAction(information, sequenceAction);
         List<AbilityAction> actions = userActions.getOrDefault(user, new ArrayList<>());
         // In 1.17.1 PlayerAnimationEvent call multiple (its crutch but can fix it)
-        if(!actions.isEmpty() && (sequenceAction == SequenceAction.LEFT_CLICK_BLOCK || sequenceAction == SequenceAction.LEFT_CLICK_ENTITY || sequenceAction == SequenceAction.LEFT_CLICK) && sequenceAction == actions.get(actions.size() - 1).action() && information.getAbilityClass() == actions.get(actions.size() - 1).ability()) return ActivateResult.NOT_ACTIVATE;
+        if (!actions.isEmpty() && (sequenceAction == SequenceAction.LEFT_CLICK_BLOCK
+                || sequenceAction == SequenceAction.LEFT_CLICK_ENTITY
+                || sequenceAction == SequenceAction.LEFT_CLICK)
+                && sequenceAction == actions.get(actions.size() - 1).action()
+                && information.getAbilityClass() == actions.get(actions.size() - 1).ability()) {
+            return ActivateResult.NOT_ACTIVATE;
+        }
         actions.add(abilityAction);
         if (actions.size() > maxSize) actions.remove(0);
         userActions.put(user, actions);
