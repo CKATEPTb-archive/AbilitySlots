@@ -21,6 +21,7 @@ package ru.ckateptb.abilityslots.entity;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.tablecloth.math.ImmutableVector;
 
 /**
@@ -35,8 +36,9 @@ public interface AbilityTargetEntity {
     /**
      * Apply {@link Entity#setVelocity(Vector)} for wrapped {@link Entity}.
      * @param velocity – New velocity to travel with
+     * @param ability {@link Ability} that applied Velocity
      */
-    default void setVelocity(Vector velocity) {
+    default void setVelocity(Vector velocity, Ability ability) {
         getEntity().setVelocity(velocity);
     }
 
