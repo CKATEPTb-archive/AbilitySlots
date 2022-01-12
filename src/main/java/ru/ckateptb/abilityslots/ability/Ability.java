@@ -20,9 +20,9 @@ import java.util.Collections;
 
 @Getter
 public abstract class Ability {
-    private AbilityUser user;
-    private LivingEntity livingEntity;
-    private World world;
+    protected AbilityUser user;
+    protected LivingEntity livingEntity;
+    protected World world;
 
     public abstract ActivateResult activate(ActivationMethod method);
 
