@@ -8,6 +8,7 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
@@ -109,6 +110,38 @@ public class AbilitySlotsCommand {
                                 .executes(this::executeWho)
                 )
                 .withSubcommand(
+                        new CommandAPICommand("presets")
+                                .withPermission("abilityslots.command.preset")
+                                .withAliases("preset", "p")
+                                .withSubcommand(
+                                        new CommandAPICommand("create")
+                                                .withPermission("abilityslots.command.preset.create")
+                                                .withArguments(new StringArgument("name"))
+                                                .withAliases("c", "s", "save")
+                                                .executesPlayer(this::executePresetCreate)
+                                )
+                                .withSubcommand(
+                                        new CommandAPICommand("delete")
+                                                .withPermission("abilityslots.command.preset.delete")
+                                                .withArguments(new StringArgument("name").replaceSuggestions(this::presetSuggestion))
+                                                .withAliases("d", "r", "remove")
+                                                .executesPlayer(this::executePresetDelete)
+                                )
+                                .withSubcommand(
+                                        new CommandAPICommand("bind")
+                                                .withPermission("abilityslots.command.preset.bind")
+                                                .withArguments(new StringArgument("name").replaceSuggestions(this::presetSuggestion))
+                                                .withAliases("b", "u", "use")
+                                                .executesPlayer(this::executePresetBind)
+                                )
+                                .withSubcommand(
+                                        new CommandAPICommand("list")
+                                                .withPermission("abilityslots.command.preset.list")
+                                                .withAliases("l")
+                                                .executesPlayer(this::executePresetList)
+                                )
+                )
+                .withSubcommand(
                         new CommandAPICommand("reload")
                                 .withPermission("abilityslots.command.reload")
                                 .executes(this::executeReload)
@@ -145,13 +178,159 @@ public class AbilitySlotsCommand {
                 .toArray(String[]::new);
     }
 
+    public String[] presetSuggestion(SuggestionInfo info) {
+        if (info.sender() instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user != null) {
+                user.getPresets().keySet().toArray(String[]::new);
+            }
+        }
+        return new String[]{};
+    }
+
+    public void executePresetCreate(CommandSender sender, Object[] args) {
+        String name = parseArgument(String.class, args);
+        if (name == null || name.trim().isEmpty()) {
+            sender.sendMessage(config.getCommandPresetInvalidNameMessage());
+            return;
+        }
+        if (sender instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user == null) {
+                sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
+                return;
+            }
+            if (user.getPresets().size() >= config.getMaxPresetsPerPlayer()) {
+                sender.sendMessage(config.getCommandPresetLimitMessage());
+                return;
+            }
+            if (user.savePreset(name)) {
+                sender.sendMessage(config.getCommandPresetCreatedMessage());
+            } else {
+                sender.sendMessage(config.getCommandPresetExistsMessage());
+            }
+        } else {
+            sender.sendMessage(config.getCommandPlayerNotFoundMessage());
+        }
+    }
+
+    public void executePresetBind(CommandSender sender, Object[] args) {
+        String name = parseArgument(String.class, args);
+        if (name == null || name.trim().isEmpty()) {
+            sender.sendMessage(config.getCommandPresetInvalidNameMessage());
+            return;
+        }
+        if (sender instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user == null) {
+                sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
+                return;
+            }
+            if (user.bindPreset(name)) {
+                sender.sendMessage(config.getCommandPresetActivatedMessage());
+            } else {
+                sender.sendMessage(config.getCommandPresetNotFoundMessage());
+            }
+        } else {
+            sender.sendMessage(config.getCommandPlayerNotFoundMessage());
+        }
+    }
+
+    public void executePresetDelete(CommandSender sender, Object[] args) {
+        String name = parseArgument(String.class, args);
+        if (name == null || name.trim().isEmpty()) {
+            sender.sendMessage(config.getCommandPresetInvalidNameMessage());
+            return;
+        }
+        if (sender instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user == null) {
+                sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
+                return;
+            }
+            if (user.removePreset(name)) {
+                sender.sendMessage(config.getCommandPresetDeletedMessage());
+            } else {
+                sender.sendMessage(config.getCommandPresetNotFoundMessage());
+            }
+        } else {
+            sender.sendMessage(config.getCommandPlayerNotFoundMessage());
+        }
+    }
+
+    public void executePresetList(CommandSender sender, Object[] args) {
+        if (sender instanceof Player player) {
+            PlayerAbilityUser user = abilityUserService.getAbilityPlayer(player);
+            if (user == null) {
+                sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
+                return;
+            }
+            sender.sendMessage(String.join("\n", user.getPresets().keySet()));
+        } else {
+            sender.sendMessage(config.getCommandPlayerNotFoundMessage());
+        }
+    }
+
     public void executeReload(CommandSender sender, Object[] args) {
         plugin.reload();
         sender.sendMessage(config.getCommandReloadSuccessMessage());
     }
 
     public void executeHelp(CommandSender sender, Object[] args) {
-        sender.sendMessage("Coming soon...");
+        PluginDescriptionFile description = plugin.getDescription();
+        String help = ChatColor.GOLD +
+                description.getName() +
+                ChatColor.GREEN +
+                " v." +
+                description.getVersion() +
+                ChatColor.RED +
+                " by [CKATEPTb](https://github.com/CKATEPTb)\n" +
+                ChatColor.GRAY +
+                "[/abilityslots display \\[category\\]](suggest_command=/abilityslots display show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandDisplayDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots bind \\(ability\\) \\[slot\\]](suggest_command=/abilityslots bind show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandBindDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots clear \\[slot\\]](suggest_command=/abilityslots clear show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandClearDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots who \\[player\\]](suggest_command=/abilityslots who show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandWhoDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots preset list](suggest_command=/abilityslots preset list show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandPresetListDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots preset create \\(name\\)](suggest_command=/abilityslots preset create show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandPresetCreateDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots preset delete \\(name\\)](suggest_command=/abilityslots preset delete show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandPresetDeleteDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots preset bind \\(name\\)](suggest_command=/abilityslots preset bind show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandPresetBindDescription() + ")\n" +
+                ChatColor.GRAY +
+                "[/abilityslots reload](suggest_command=/abilityslots reload show_text=" +
+                ChatColor.RESET +
+                ChatColor.GRAY +
+                config.getCommandReloadDescription() + ")\n";
+        sender.spigot().sendMessage(MineDown.parse(help));
     }
 
     public void executeClear(CommandSender sender, Object[] args) {

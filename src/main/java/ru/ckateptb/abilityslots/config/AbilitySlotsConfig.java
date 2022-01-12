@@ -39,6 +39,8 @@ public class AbilitySlotsConfig extends YamlConfig {
     private double energyMax = 100;
     @ConfigField(name = "global.energy.regen", comment = "The amount of resource that will be restored every second")
     private double energyRegen = 5;
+    @ConfigField(name = "global.maxPresetsPerPlayer", comment = "The maximum number of presets a player can create")
+    private int maxPresetsPerPlayer = 10;
 
     @ConfigField(name = "global.board.enabled", comment = "Displaying current abilities in the scoreboard")
     private boolean boardEnabled = true;
@@ -84,6 +86,39 @@ public class AbilitySlotsConfig extends YamlConfig {
     private String commandDisplayPassivesMessage = "§f§lPassives:";
     @ConfigField(name = "language.command.message.display.sequences")
     private String commandDisplaySequencesMessage = "§f§lSequences:";
+    @ConfigField(name = "language.command.message.preset.invalidName")
+    private String commandPresetInvalidNameMessage = "§cYou made a mistake in the preset name";
+    @ConfigField(name = "language.command.message.preset.limit")
+    private String commandPresetLimitMessage = "§cYou have reached the maximum count of presets, delete one to create a new one";
+    @ConfigField(name = "language.command.message.preset.exists")
+    private String commandPresetExistsMessage = "§cA preset with the same name already exists";
+    @ConfigField(name = "language.command.message.preset.created")
+    private String commandPresetCreatedMessage = "§aYou have successfully created a new preset. You can use it using the command /as p b presetName, where presetName is the name of your preset";
+    @ConfigField(name = "language.command.message.preset.notFound")
+    private String commandPresetNotFoundMessage = "§cThe preset with the specified name was not found.";
+    @ConfigField(name = "language.command.message.preset.activated")
+    private String commandPresetActivatedMessage = "§aYou have successfully activated the specified preset";
+    @ConfigField(name = "language.command.message.preset.deleted")
+    private String commandPresetDeletedMessage = "§aYou have successfully deleted the specified preset";
+
+    @ConfigField(name = "language.command.description.display")
+    private String commandDisplayDescription = "Show available abilities \\(in specified category\\)";
+    @ConfigField(name = "language.command.description.bind")
+    private String commandBindDescription = "Bind the specified ability to the specified slot \\(if no slot is specified, it will be selected automatically\\)";
+    @ConfigField(name = "language.command.description.clear")
+    private String commandClearDescription = "Unbind the ability from the specified slot \\(if no slot is specified, it will unbind all\\)";
+    @ConfigField(name = "language.command.description.who")
+    private String commandWhoDescription = "Display player abilities";
+    @ConfigField(name = "language.command.description.preset.list")
+    private String commandPresetListDescription = "View Specified Player Abilities";
+    @ConfigField(name = "language.command.description.preset.create")
+    private String commandPresetCreateDescription = "Save current abilities to preset with specified name";
+    @ConfigField(name = "language.command.description.preset.delete")
+    private String commandPresetDeleteDescription = "Delete the specified preset";
+    @ConfigField(name = "language.command.description.preset.bind")
+    private String commandPresetBindDescription = "Activate the specified preset";
+    @ConfigField(name = "language.command.description.reload")
+    private String commandReloadDescription = "Reload plugin config and abilities";
 
     @Override
     public void init() {

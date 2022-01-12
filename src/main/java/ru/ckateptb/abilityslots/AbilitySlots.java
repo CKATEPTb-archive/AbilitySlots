@@ -14,7 +14,6 @@ import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
 import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
 
-//TODO Сделать пресеты привязанных способностей
 //TODO Добавить собственные события
 //TODO Пересмотреть код, может что улучшить, добавить, оптимизировать
 //TODO Сделать Адон по мотивам Avatar (ProjectKorra), вынося необходимое в Tablecloth

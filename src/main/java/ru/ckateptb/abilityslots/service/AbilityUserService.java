@@ -22,6 +22,7 @@ import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
+import ru.ckateptb.tablecloth.async.AsyncService;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,18 +41,20 @@ public class AbilityUserService implements Listener {
     private final AbilitySlotsConfig config;
     private final AbilityService abilityService;
     private final AbilityInstanceService abilityInstanceService;
+    private final AsyncService asyncService;
 
-    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService) {
+    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AsyncService asyncService) {
         this.storage = storage;
         this.config = config;
         this.abilityService = abilityService;
         this.abilityInstanceService = abilityInstanceService;
+        this.asyncService = asyncService;
     }
 
     public PlayerAbilityUser getAbilityPlayer(Player player) {
         AbilityUser abilityUser = users.get(player);
         if (abilityUser == null) {
-            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService, storage);
+            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService, storage, asyncService);
             user.enableAbilityBoard();
             user.enableEnergyBar();
             users.put(player, user);
@@ -104,7 +107,7 @@ public class AbilityUserService implements Listener {
     @EventHandler
     public void on(PlayerQuitEvent event) {
         AbilityUser user = users.remove(event.getPlayer());
-        if(user != null) {
+        if (user != null) {
             abilityInstanceService.destroyAbilityUserInstances(user);
         }
     }
@@ -114,7 +117,7 @@ public class AbilityUserService implements Listener {
         if (event.getEntity() instanceof LivingEntity entity) {
             if (!(entity instanceof Player)) {
                 AbilityUser user = users.remove(entity);
-                if(user != null) {
+                if (user != null) {
                     abilityInstanceService.destroyAbilityUserInstances(user);
                 }
             }
@@ -126,7 +129,7 @@ public class AbilityUserService implements Listener {
         LivingEntity entity = event.getEntity();
         if (!(entity instanceof Player)) {
             AbilityUser user = users.remove(entity);
-            if(user != null) {
+            if (user != null) {
                 abilityInstanceService.destroyAbilityUserInstances(user);
             }
         }

@@ -27,6 +27,7 @@ public class AbilitySlotsStorage implements AutoCloseable {
     private final AbilitySlotsConfig config;
     private ConnectionSource connection;
     private Dao<PlayerAbilityTable, String> playerAbilityTables;
+    private Dao<PresetAbilityTable, String> presetAbilityTables;
 
     public AbilitySlotsStorage(AbilitySlotsConfig config) {
         this.config = config;
@@ -37,7 +38,9 @@ public class AbilitySlotsStorage implements AutoCloseable {
     public void init() {
         this.connection = createConnection(config);
         TableUtils.createTableIfNotExists(connection, PlayerAbilityTable.class);
+        TableUtils.createTableIfNotExists(connection, PresetAbilityTable.class);
         this.playerAbilityTables = DaoManager.createDao(connection, PlayerAbilityTable.class);
+        this.presetAbilityTables = DaoManager.createDao(connection, PresetAbilityTable.class);
     }
 
     @SneakyThrows

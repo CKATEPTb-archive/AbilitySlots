@@ -16,9 +16,14 @@ import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.storage.PlayerAbilityTable;
+import ru.ckateptb.abilityslots.storage.PresetAbilityTable;
+import ru.ckateptb.tablecloth.async.AsyncService;
 import ru.ckateptb.tablecloth.storage.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -33,9 +38,13 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private final CompositeAbilityConditional abilityUseConditional = new CompositeAbilityConditional();
     private final PermissionCategoryConditional categoryUseConditional = new PermissionCategoryConditional();
     private final Dao<PlayerAbilityTable, String> abilityStorage;
+    private final Dao<PresetAbilityTable, String> presetStorage;
+    private final HashMap<String, String> presets = new HashMap<>();
     private final String uuid;
+    private final AsyncService asyncService;
+    private boolean presetsIsLocked = false;
 
-    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage) {
+    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage, AsyncService asyncService) {
         super(livingEntity);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
@@ -51,8 +60,11 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
                 new PermissionAbilityConditional()
         );
         this.abilityStorage = storage.getPlayerAbilityTables();
+        this.presetStorage = storage.getPresetAbilityTables();
         this.uuid = livingEntity.getUniqueId().toString();
+        this.asyncService = asyncService;
         this.loadAbilityStorageAsync();
+        this.loadPresetStorageAsync();
         abilityInstanceService.createPassives(this);
     }
 
@@ -178,5 +190,82 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
                 exception.printStackTrace();
             }
         }, executorService);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void savePresetStorageAsync() {
+        HashMap<String, String> presets = (HashMap<String, String>) this.presets.clone();
+        asyncService.supplyAsync(() -> {
+            while (true) {
+                if (!presetsIsLocked) {
+                    presetsIsLocked = true;
+                    try {
+                        this.presetStorage.delete(this.presetStorage.queryForFieldValues(Map.of("uuid", livingEntity.getUniqueId())));
+                    } catch (SQLException exception) {
+                        exception.printStackTrace();
+                    }
+                    presets.forEach((key, value) -> {
+                        try {
+                            this.presetStorage.createOrUpdate(new PresetAbilityTable(this.uuid + "|" + key, this.uuid, key, value));
+                        } catch (SQLException exception) {
+                            exception.printStackTrace();
+                        }
+                    });
+                    return true;
+                }
+            }
+        }, (result) -> presetsIsLocked = false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadPresetStorageAsync() {
+        HashMap<String, String> presets = (HashMap<String, String>) this.presets.clone();
+        asyncService.supplyAsync(() -> {
+            while (true) {
+                if (!presetsIsLocked) {
+                    presetsIsLocked = true;
+                    try {
+                        this.presetStorage.queryForFieldValues(Map.of("uuid", livingEntity.getUniqueId())).forEach(table -> presets.put(table.getName(), table.getAbilities()));
+                    } catch (SQLException exception) {
+                        exception.printStackTrace();
+                    }
+                    return true;
+                }
+            }
+        }, (result) -> {
+            presetsIsLocked = false;
+            this.presets.clear();
+            this.presets.putAll(presets);
+        });
+    }
+
+    public Map<String, String> getPresets() {
+        return Collections.unmodifiableMap(presets);
+    }
+
+    public boolean bindPreset(String name) {
+        if (presets.containsKey(name)) {
+            this.setSlotContainer(DefaultAbilitySlotContainer.fromString(presets.get(name)));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean savePreset(String name) {
+        if (presets.containsKey(name)) {
+            return false;
+        }
+        presets.put(name, slotContainer.toString());
+        savePresetStorageAsync();
+        return true;
+    }
+
+    public boolean removePreset(String name) {
+        if (presets.containsKey(name)) {
+            presets.remove(name);
+            savePresetStorageAsync();
+            return true;
+        }
+        return false;
     }
 }
