@@ -16,7 +16,7 @@ java {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
     if (!isSnapshot()) {
-        withJavadocJar()
+//        withJavadocJar()
     }
     withSourcesJar()
 }
@@ -79,7 +79,7 @@ publishing {
                     classifier = ""
                 }
                 if (!isSnapshot()) {
-                    artifact(tasks.javadoc)
+//                    artifact(tasks.javadoc)
                 }
                 artifact(tasks["sourcesJar"])
             }
@@ -117,7 +117,7 @@ publishing {
 }
 
 signing {
-    sign(publishing.publications["maven"])
+//    sign(publishing.publications["maven"])
 }
 
 fun isSnapshot() = project.version.toString().endsWith("-SNAPSHOT")
