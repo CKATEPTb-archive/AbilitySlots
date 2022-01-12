@@ -19,6 +19,8 @@ import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
+import ru.ckateptb.tablecloth.minedown.MineDown;
+import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,12 +43,8 @@ public class AbilitySlotsCommand {
         this.config = config;
         new CommandAPICommand("abilityslots")
                 .withAliases("abilityslot", "abilities", "ability", "as")
-                .withHelp("1", "2")
                 .withPermission("abilityslots.command")
-                .executes((sender, args) -> {
-                    // TODO HELP COMMAND
-//                    sender.sendMessage("AbilitySlots help command");
-                })
+                .executes(this::executeHelp)
                 .withSubcommand(
                         new CommandAPICommand("display")
                                 .withPermission("abilityslots.command.display")
@@ -98,6 +96,19 @@ public class AbilitySlotsCommand {
                                 .executes(this::executeClear)
                 )
                 .withSubcommand(
+                        new CommandAPICommand("who")
+                                .withPermission("abilityslots.command.who")
+                                .withAliases("w")
+                                .executes(this::executeWho)
+                )
+                .withSubcommand(
+                        new CommandAPICommand("who")
+                                .withPermission("abilityslots.command.who")
+                                .withAliases("w")
+                                .withArguments(new PlayerArgument("target").withPermission("abilityslots.command.who.other"))
+                                .executes(this::executeWho)
+                )
+                .withSubcommand(
                         new CommandAPICommand("reload")
                                 .withPermission("abilityslots.command.reload")
                                 .executes(this::executeReload)
@@ -139,6 +150,10 @@ public class AbilitySlotsCommand {
         sender.sendMessage(config.getCommandReloadSuccessMessage());
     }
 
+    public void executeHelp(CommandSender sender, Object[] args) {
+        sender.sendMessage("Coming soon...");
+    }
+
     public void executeClear(CommandSender sender, Object[] args) {
         Player target = parseArgument(Player.class, args);
         if (sender instanceof Player player) {
@@ -154,6 +169,61 @@ public class AbilitySlotsCommand {
             return;
         }
         user.clearAbilities();
+    }
+
+    public void executeWho(CommandSender sender, Object[] args) {
+        Player target = parseArgument(Player.class, args);
+        if (sender instanceof Player player) {
+            if (target == null) target = player;
+        }
+        if (target == null) {
+            sender.sendMessage(config.getCommandPlayerNotFoundMessage());
+            return;
+        }
+        PlayerAbilityUser user = abilityUserService.getAbilityPlayer(target);
+        if (user == null) {
+            sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
+            return;
+        }
+        AbilitySlotsConfig config = SpringContext.getInstance().getBean(AbilitySlotsConfig.class);
+        StringBuilder builder = new StringBuilder();
+        for (int slotIndex = 1; slotIndex <= 9; ++slotIndex) {
+            AbilityInformation ability = user.getSlotContainer().getAbility(slotIndex);
+            builder.append("\n");
+
+            if (ability == null) {
+                builder.append(config.getBoardEmptySlot());
+            } else {
+                AbilityCategory category = ability.getCategory();
+                String prefix = config.isRespectCategoryPrefix() ? category.getPrefix() : "";
+                builder
+                        .append("[")
+                        .append(ability.getFormattedName())
+                        .append("]")
+                        .append("(")
+                        .append("hover=")
+                        .append(ChatColor.RESET)
+                        .append(config.getAuthorText())
+                        .append(ability.getAuthor())
+                        .append("\n")
+                        .append(ChatColor.RESET)
+                        .append(config.getCategoryText())
+                        .append(prefix)
+                        .append(category.getDisplayName())
+                        .append("\n")
+                        .append(ChatColor.RESET)
+                        .append(config.getDescriptionText())
+                        .append(prefix)
+                        .append(ability.getDescription())
+                        .append("\n")
+                        .append(ChatColor.RESET)
+                        .append(config.getInstructionText())
+                        .append(prefix)
+                        .append(ability.getInstruction())
+                        .append(")");
+            }
+        }
+        sender.spigot().sendMessage(MineDown.parse(builder.toString()));
     }
 
     public void executeDisplay(CommandSender sender, Object[] args) {
