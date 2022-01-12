@@ -1,6 +1,5 @@
 package ru.ckateptb.abilityslots.user;
 
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -195,27 +194,11 @@ public interface AbilityTarget extends AbilityTargetEntity {
         return entity.getTargetEntity(range, ignoreBlocks);
     }
 
-    default ImmutableVector getLocation() {
-        return new ImmutableVector(getEntity().getLocation());
-    }
-
     default ImmutableVector getEyeLocation() {
         return new ImmutableVector(getEntity().getEyeLocation());
     }
 
     default ImmutableVector getDirection() {
         return new ImmutableVector(getEntity().getEyeLocation().getDirection());
-    }
-
-    default double getDistanceAboveGround() {
-        return getDistanceAboveGround(false);
-    }
-
-    default double getDistanceAboveGround(boolean ignoreLiquids) {
-        return getLocation().getDistanceAboveGround(getWorld(), ignoreLiquids);
-    }
-
-    default World getWorld() {
-        return getEntity().getWorld();
     }
 }
