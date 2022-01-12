@@ -116,7 +116,8 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * @return the source Vector3d
      */
     default ImmutableVector findPosition(double range, double raySize, boolean ignoreEntity, boolean ignoreBlocks, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
-        return new ImmutableVector(new RayCollider(getEntity(), range, raySize).getPosition(ignoreEntity, ignoreBlocks, ignoreLiquids, ignorePassable, entityFilter, blockFilter.and(block -> !block.getType().isAir())).orElse(getDirection().normalize().multiply(range)));
+        LivingEntity source = getEntity();
+        return new ImmutableVector(new RayCollider(source, range, raySize).getPosition(ignoreEntity, ignoreBlocks, ignoreLiquids, ignorePassable, entityFilter.and(entity -> entity != source), blockFilter.and(block -> !block.getType().isAir())).orElse(getDirection().normalize().multiply(range)));
     }
 
     default @Nullable Block findBlock(double range) {
@@ -159,7 +160,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
     }
 
     default @Nullable LivingEntity findLivingEntity(double range, double raySize) {
-        return findLivingEntity(range, raySize, entity -> true);
+        return findLivingEntity(range, raySize, false, entity -> true);
     }
 
     default @Nullable LivingEntity findLivingEntity(double range) {
@@ -167,7 +168,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
     }
 
     default @Nullable LivingEntity findLivingEntity(double range, Predicate<LivingEntity> predicate) {
-        return findLivingEntity(range, 0, predicate);
+        return findLivingEntity(range, 0, false, predicate);
     }
 
     /**
@@ -177,8 +178,14 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * @param predicate the predicate to check
      * @return the source LivingEntity if one was found, null otherwise
      */
-    default @Nullable LivingEntity findLivingEntity(double range, double raySize, Predicate<LivingEntity> predicate) {
+    default @Nullable LivingEntity findLivingEntity(double range, double raySize, boolean ignoreBlock, Predicate<LivingEntity> predicate) {
         LivingEntity livingEntity = getEntity();
+        if(!ignoreBlock) {
+            Block block = findBlock(range, raySize, true);
+            if(block != null) {
+                range = new ImmutableVector(block.getLocation().toCenterLocation()).distance(getCenterLocation());
+            }
+        }
         return (LivingEntity) new RayCollider(livingEntity, range, raySize).getEntity(entity -> entity instanceof LivingEntity target && target != livingEntity && predicate.test(target)).orElse(null);
     }
 
