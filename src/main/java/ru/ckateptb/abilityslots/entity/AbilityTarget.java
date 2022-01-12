@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ru.ckateptb.abilityslots.user;
+package ru.ckateptb.abilityslots.entity;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
