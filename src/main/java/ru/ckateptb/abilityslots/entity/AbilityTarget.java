@@ -80,11 +80,13 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * @param ignoreNoDamageTicks cause this damage ignoring noDamageTicks
      */
     default void damage(double amount, Ability ability, boolean ignoreNoDamageTicks) {
-        LivingEntity entity = getEntity();
-        if (ignoreNoDamageTicks) {
-            entity.setNoDamageTicks(0);
-        }
-        entity.damage(amount, ability.getUser().getEntity());
+        ability.sync(() -> {
+            LivingEntity entity = getEntity();
+            if (ignoreNoDamageTicks) {
+                entity.setNoDamageTicks(0);
+            }
+            entity.damage(amount, ability.getUser().getEntity());
+        });
     }
 
     /**
@@ -97,14 +99,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
+     *
      * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
-     * <p>blockFilter <b>block -> true</b> block predicate</p>
+     *              <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *              <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *              <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *              <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *              <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *              <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     *              <p>blockFilter <b>block -> true</b> block predicate</p>
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range) {
@@ -113,14 +116,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *
+     * @param range         this is the maximum distance to scan
+     *                      <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                      <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                      <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                      <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
      * @param ignoreLiquids should ignore liquids on scan path
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
-     * <p>blockFilter <b>block -> true</b> block predicate</p>
+     *                      <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     *                      <p>blockFilter <b>block -> true</b> block predicate</p>
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignoreLiquids) {
@@ -129,14 +133,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *
+     * @param range         this is the maximum distance to scan
+     *                      <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                      <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                      <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                      <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
      * @param ignoreLiquids should ignore liquids on scan path
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
-     * @param blockFilter block predicate
+     *                      <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     * @param blockFilter   block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignoreLiquids, Predicate<Block> blockFilter) {
@@ -145,13 +150,14 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     *
+     * @param range       this is the maximum distance to scan
+     *                    <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                    <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                    <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                    <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *                    <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *                    <p>entityFilter <b>entity -> true</b> entity predicate</p>
      * @param blockFilter block predicate
      * @return distant position in the direction of the entity
      */
@@ -161,14 +167,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *
+     * @param range        this is the maximum distance to scan
+     *                     <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                     <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                     <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                     <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *                     <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
      * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param blockFilter  block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -177,14 +184,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *
+     * @param range         this is the maximum distance to scan
+     *                      <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                      <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                      <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                      <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
      * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param entityFilter  entity predicate
+     * @param blockFilter   block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -193,14 +201,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *
+     * @param range          this is the maximum distance to scan
+     *                       <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                       <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                       <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -209,14 +218,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * @param ignoreBlocks should ignore blocks on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     *                       <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     *                       <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     * @param ignoreBlocks   should ignore blocks on scan path
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignoreBlocks, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -225,14 +235,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
+     *
+     * @param range   this is the maximum distance to scan
      * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
-     * <p>blockFilter <b>block -> true</b> block predicate</p>
+     *                <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *                <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *                <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     *                <p>blockFilter <b>block -> true</b> block predicate</p>
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize) {
@@ -241,13 +252,14 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
-     * <p>entityFilter <b>entity -> true</b> entity predicate</p>
+     *
+     * @param range       this is the maximum distance to scan
+     * @param raySize     entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     *                    <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                    <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                    <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *                    <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *                    <p>entityFilter <b>entity -> true</b> entity predicate</p>
      * @param blockFilter block predicate
      * @return distant position in the direction of the entity
      */
@@ -257,14 +269,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
-     * <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
+     *
+     * @param range        this is the maximum distance to scan
+     * @param raySize      entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     *                     <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                     <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                     <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *                     <p>ignoreLiquids <b>default false</b> should ignore liquids on scan path</p>
      * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param blockFilter  block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -273,14 +286,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
+     *
+     * @param range         this is the maximum distance to scan
+     * @param raySize       entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     *                      <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                      <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *                      <p>ignorePassable <b>default true</b> should ignore passable blocks on scan path</p>
      * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param entityFilter  entity predicate
+     * @param blockFilter   block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -289,14 +303,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
+     *
+     * @param range          this is the maximum distance to scan
+     * @param raySize        entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     *                       <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     *                       <p>ignoreBlocks <b>default false</b> should ignore blocks on scan path</p>
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -305,14 +320,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
-     * @param ignoreBlocks should ignore blocks on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     * @param raySize        entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     *                       <p>ignoreEntity <b>default false</b> should ignore entity on scan path</p>
+     * @param ignoreBlocks   should ignore blocks on scan path
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize, boolean ignoreBlocks, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -321,14 +337,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
-     * @param ignoreEntity should ignore entity on scan path
-     * @param ignoreBlocks should ignore blocks on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     *                       <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value</p>
+     * @param ignoreEntity   should ignore entity on scan path
+     * @param ignoreBlocks   should ignore blocks on scan path
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, boolean ignoreEntity, boolean ignoreBlocks, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -337,14 +354,15 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get distant position found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value
-     * @param ignoreEntity should ignore entity on scan path
-     * @param ignoreBlocks should ignore blocks on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     * @param raySize        entity bounding boxes will be uniformly expanded (or shrinked) by this value
+     * @param ignoreEntity   should ignore entity on scan path
+     * @param ignoreBlocks   should ignore blocks on scan path
      * @param ignorePassable should ignore passable blocks on scan path
-     * @param ignoreLiquids should ignore liquids on scan path
-     * @param entityFilter entity predicate
-     * @param blockFilter block predicate
+     * @param ignoreLiquids  should ignore liquids on scan path
+     * @param entityFilter   entity predicate
+     * @param blockFilter    block predicate
      * @return distant position in the direction of the entity
      */
     default ImmutableVector findPosition(double range, double raySize, boolean ignoreEntity, boolean ignoreBlocks, boolean ignorePassable, boolean ignoreLiquids, Predicate<Entity> entityFilter, Predicate<Block> blockFilter) {
@@ -354,11 +372,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
+     *
      * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
-     * <p>ignoreLiquid <b>default false</b> should ignore liquids on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *              <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     *              <p>ignoreLiquid <b>default false</b> should ignore liquids on scan path</p>
+     *              <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
+     *              <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range) {
@@ -367,11 +386,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
+     *
+     * @param range   this is the maximum distance to scan
      * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
-     * <p>ignoreLiquid <b>default false</b> should ignore liquids on scan path</p>
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *                <p>ignoreLiquid <b>default false</b> should ignore liquids on scan path</p>
+     *                <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
+     *                <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, double raySize) {
@@ -380,11 +400,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
+     *
+     * @param range        this is the maximum distance to scan
+     * @param raySize      entity bounding boxes will be uniformly expanded (or shrinked) by this value before
      * @param ignoreLiquid should ignore liquids on scan path
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *                     <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
+     *                     <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, double raySize, boolean ignoreLiquid) {
@@ -393,11 +414,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
-     * @param ignoreLiquid should ignore liquids on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     * @param raySize        entity bounding boxes will be uniformly expanded (or shrinked) by this value before
+     * @param ignoreLiquid   should ignore liquids on scan path
      * @param ignorePassable should ignore passable blocks on the scan path
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *                       <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, double raySize, boolean ignoreLiquid, boolean ignorePassable) {
@@ -406,11 +428,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     *
+     * @param range        this is the maximum distance to scan
+     *                     <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
      * @param ignoreLiquid should ignore liquids on scan path
-     * <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *                     <p>ignorePassable <b>default true</b> should ignore passable blocks on the scan path</p>
+     *                     <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, boolean ignoreLiquid) {
@@ -419,11 +442,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
-     * @param ignoreLiquid should ignore liquids on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     *                       <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     * @param ignoreLiquid   should ignore liquids on scan path
      * @param ignorePassable should ignore passable blocks on the scan path
-     * <p>filter <b>default block -> true</b> block predicate</p>
+     *                       <p>filter <b>default block -> true</b> block predicate</p>
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, boolean ignoreLiquid, boolean ignorePassable) {
@@ -432,11 +456,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
-     * @param ignoreLiquid should ignore liquids on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     *                       <p>raySize <b>default 0</b> entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     * @param ignoreLiquid   should ignore liquids on scan path
      * @param ignorePassable should ignore passable blocks on the scan path
-     * @param filter block predicate
+     * @param filter         block predicate
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, boolean ignoreLiquid, boolean ignorePassable, Predicate<Block> filter) {
@@ -445,11 +470,12 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first block found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
-     * @param ignoreLiquid should ignore liquids on scan path
+     *
+     * @param range          this is the maximum distance to scan
+     * @param raySize        entity bounding boxes will be uniformly expanded (or shrinked) by this value before
+     * @param ignoreLiquid   should ignore liquids on scan path
      * @param ignorePassable should ignore passable blocks on the scan path
-     * @param filter block predicate
+     * @param filter         block predicate
      * @return Block that was found in the direction of the entity or null
      */
     default @Nullable Block findBlock(double range, double raySize, boolean ignoreLiquid, boolean ignorePassable, Predicate<Block> filter) {
@@ -458,10 +484,11 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first LivingEntity found in the entity direction
-     * @param range this is the maximum distance to scan
+     *
+     * @param range   this is the maximum distance to scan
      * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
-     * <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
-     * <p>predicate <b>default true</b> - filter for founded entity</p>
+     *                <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
+     *                <p>predicate <b>default true</b> - filter for founded entity</p>
      * @return LivingEntity that was found in the direction of the entity or null
      */
     default @Nullable LivingEntity findLivingEntity(double range, double raySize) {
@@ -470,10 +497,11 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first LivingEntity found in the entity direction
+     *
      * @param range this is the maximum distance to scan
-     * <p>raySize <b>default 0</b> - entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
-     * <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
-     * <p>predicate <b>default true</b> - filter for founded entity</p>
+     *              <p>raySize <b>default 0</b> - entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     *              <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
+     *              <p>predicate <b>default true</b> - filter for founded entity</p>
      * @return LivingEntity that was found in the direction of the entity or null
      */
     default @Nullable LivingEntity findLivingEntity(double range) {
@@ -482,10 +510,11 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first LivingEntity found in the entity direction
-     * @param range this is the maximum distance to scan
+     *
+     * @param range     this is the maximum distance to scan
      * @param predicate filter for founded entity
-     * <p>raySize <b>default 0</b> - entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
-     * <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
+     *                  <p>raySize <b>default 0</b> - entity bounding boxes will be uniformly expanded (or shrinked) by this value before</p>
+     *                  <p>ignoreBlock <b>default false</b> - should ignore blocks on scan path</p>
      * @return LivingEntity that was found in the direction of the entity or null
      */
     default @Nullable LivingEntity findLivingEntity(double range, Predicate<LivingEntity> predicate) {
@@ -494,10 +523,11 @@ public interface AbilityTarget extends AbilityTargetEntity {
 
     /**
      * Get the first LivingEntity found in the entity direction
-     * @param range this is the maximum distance to scan
-     * @param raySize entity bounding boxes will be uniformly expanded (or shrinked) by this value before
+     *
+     * @param range       this is the maximum distance to scan
+     * @param raySize     entity bounding boxes will be uniformly expanded (or shrinked) by this value before
      * @param ignoreBlock should ignore blocks on scan path
-     * @param predicate filter for founded entity
+     * @param predicate   filter for founded entity
      * @return LivingEntity that was found in the direction of the entity or null
      */
     default @Nullable LivingEntity findLivingEntity(double range, double raySize, boolean ignoreBlock, Predicate<LivingEntity> predicate) {
@@ -514,7 +544,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
     /**
      * Gets information about the entity being targeted
      *
-     * @param range  this is the maximum distance to scan
+     * @param range        this is the maximum distance to scan
      * @param ignoreBlocks true to scan through blocks
      * @return entity being targeted, or null if no entity is targeted
      */
@@ -545,7 +575,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * Adds the given {@link PotionEffect} to the living entity.
      *
      * @param ability this method is called from
-     * @param effect PotionEffect to be added
+     * @param effect  PotionEffect to be added
      * @return whether the effect could be added
      */
     default void addPotionEffect(Ability ability, @NotNull PotionEffect effect) {
@@ -559,8 +589,8 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * PotionEffectType}.
      *
      * @param ability this method is called from
-     * @param effect PotionEffect to be added
-     * @param force whether conflicting effects should be removed
+     * @param effect  PotionEffect to be added
+     * @param force   whether conflicting effects should be removed
      * @return whether the effect could be added
      * @deprecated no need to force since multiple effects of the same type are
      * now supported.
@@ -587,7 +617,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * the given {@link PotionEffectType} applied to it.
      *
      * @param ability this method is called from
-     * @param type the potion type to check
+     * @param type    the potion type to check
      * @return whether the living entity has this potion effect active on them
      */
     default boolean hasPotionEffect(Ability ability, @NotNull PotionEffectType type) {
@@ -600,7 +630,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * If the effect is not present on the entity then null will be returned.
      *
      * @param ability this method is called from
-     * @param type the potion type to check
+     * @param type    the potion type to check
      * @return the effect active on this entity, or null if not active.
      */
     @org.jetbrains.annotations.Nullable
@@ -612,7 +642,7 @@ public interface AbilityTarget extends AbilityTargetEntity {
      * Removes any effects present of the given {@link PotionEffectType}.
      *
      * @param ability this method is called from
-     * @param type the potion type to remove
+     * @param type    the potion type to remove
      */
     default void removePotionEffect(Ability ability, @NotNull PotionEffectType type) {
         ability.sync(() -> getEntity().removePotionEffect(type));
