@@ -21,11 +21,15 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.tablecloth.collision.collider.RayCollider;
 import ru.ckateptb.tablecloth.math.ImmutableVector;
 
+import java.util.Collection;
 import java.util.function.Predicate;
 
 /**
@@ -535,5 +539,109 @@ public interface AbilityTarget extends AbilityTargetEntity {
      */
     default ImmutableVector getDirection() {
         return new ImmutableVector(getEntity().getEyeLocation().getDirection());
+    }
+
+    /**
+     * Adds the given {@link PotionEffect} to the living entity.
+     *
+     * @param ability this method is called from
+     * @param effect PotionEffect to be added
+     * @return whether the effect could be added
+     */
+    default void addPotionEffect(Ability ability, @NotNull PotionEffect effect) {
+        ability.sync(() -> getEntity().addPotionEffect(effect));
+    }
+
+    /**
+     * Adds the given {@link PotionEffect} to the living entity.
+     * <p>
+     * Only one potion effect can be present for a given {@link
+     * PotionEffectType}.
+     *
+     * @param ability this method is called from
+     * @param effect PotionEffect to be added
+     * @param force whether conflicting effects should be removed
+     * @return whether the effect could be added
+     * @deprecated no need to force since multiple effects of the same type are
+     * now supported.
+     */
+    @Deprecated
+    default void addPotionEffect(Ability ability, @NotNull PotionEffect effect, boolean force) {
+        ability.sync(() -> getEntity().addPotionEffect(effect, force));
+    }
+
+    /**
+     * Attempts to add all of the given {@link PotionEffect} to the living
+     * entity.
+     *
+     * @param ability this method is called from
+     * @param effects the effects to add
+     * @return whether all of the effects could be added
+     */
+    default void addPotionEffects(Ability ability, @NotNull Collection<PotionEffect> effects) {
+        ability.sync(() -> getEntity().addPotionEffects(effects));
+    }
+
+    /**
+     * Returns whether the living entity already has an existing effect of
+     * the given {@link PotionEffectType} applied to it.
+     *
+     * @param ability this method is called from
+     * @param type the potion type to check
+     * @return whether the living entity has this potion effect active on them
+     */
+    default boolean hasPotionEffect(Ability ability, @NotNull PotionEffectType type) {
+        return getEntity().hasPotionEffect(type);
+    }
+
+    /**
+     * Returns the active {@link PotionEffect} of the specified type.
+     * <p>
+     * If the effect is not present on the entity then null will be returned.
+     *
+     * @param ability this method is called from
+     * @param type the potion type to check
+     * @return the effect active on this entity, or null if not active.
+     */
+    @org.jetbrains.annotations.Nullable
+    default PotionEffect getPotionEffect(Ability ability, @NotNull PotionEffectType type) {
+        return getEntity().getPotionEffect(type);
+    }
+
+    /**
+     * Removes any effects present of the given {@link PotionEffectType}.
+     *
+     * @param ability this method is called from
+     * @param type the potion type to remove
+     */
+    default void removePotionEffect(Ability ability, @NotNull PotionEffectType type) {
+        ability.sync(() -> getEntity().removePotionEffect(type));
+    }
+
+    /**
+     * Returns all currently active {@link PotionEffect}s on the living
+     * entity.
+     *
+     * @return a collection of {@link PotionEffect}s
+     */
+    @NotNull
+    default Collection<PotionEffect> getActivePotionEffects() {
+        return getEntity().getActivePotionEffects();
+    }
+
+    /**
+     * Returns true if this entity has been marked for removal.
+     *
+     * @return True if it is dead.
+     */
+    default boolean isDead() {
+        return getEntity().isDead();
+    }
+
+    /**
+     * @return true.
+     */
+    default boolean isSprinting() {
+        return true;
     }
 }

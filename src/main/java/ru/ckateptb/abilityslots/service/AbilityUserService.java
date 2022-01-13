@@ -104,7 +104,7 @@ public class AbilityUserService implements Listener {
                     if (!abilityInstanceService.hasAbility(user, passive)) {
                         Ability ability = passive.createAbility();
                         ability.setUser(user);
-                        ActivateResult activateResult = ability.activate(ActivationMethod.PASSIVE);
+                        ActivateResult activateResult = ability.finalActivate(ActivationMethod.PASSIVE);
                         if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
                             abilityInstanceService.registerInstance(user, ability);
                         }

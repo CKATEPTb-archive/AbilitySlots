@@ -17,34 +17,57 @@
 
 package ru.ckateptb.abilityslots.service;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.spigotmc.AsyncCatcher;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
 @EnableScheduling
-// TODO Это не мой код, его нужно переписать
+@Slf4j
 public class AbilityInstanceService implements Listener {
+    @Getter
+    private final static boolean canAsync;
+
+    static {
+        boolean strictThreadChecks = false;
+        try {
+            strictThreadChecks = io.papermc.paper.util.TickThread.STRICT_THREAD_CHECKS;
+        } catch (Throwable ignored) {
+        }
+        canAsync = !strictThreadChecks;
+    }
+
     private final Map<AbilityUser, List<Ability>> instances = new HashMap<>();
     private final AbilityService abilityService;
+    private final AbilitySlotsConfig config;
+    private boolean locked = false;
 
-    public AbilityInstanceService(AbilityService abilityService) {
+    public AbilityInstanceService(AbilityService abilityService, AbilitySlotsConfig config) {
         this.abilityService = abilityService;
+        this.config = config;
     }
 
     public void registerInstance(AbilityUser user, Ability instance) {
@@ -53,10 +76,64 @@ public class AbilityInstanceService implements Listener {
 
     @Scheduled(fixedRate = 1)
     public void update() {
+        if (canAsync && this.config.isAsyncAbilities()) updateAsync();
+        else updateSync();
+    }
+
+    private void updateAsync() {
+        if (locked) return;
+        if (instances.isEmpty()) return;
+        AbilitySlots plugin = AbilitySlots.getInstance();
+        List<CompletableFuture<Ability>> futures = new ArrayList<>();
+        locked = true;
+        instances.forEach((user, value) -> {
+            List<Ability> abilities = new ArrayList<>(value);
+            futures.addAll(abilities.stream().map(ability -> CompletableFuture.supplyAsync(() -> {
+                        UpdateResult result = UpdateResult.REMOVE;
+                        AsyncCatcher.enabled = false;
+                        try {
+                            result = ability.finalUpdate();
+                        } catch (Exception e) {
+                            Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
+                        }
+                        return result == UpdateResult.REMOVE ? ability : null;
+                    })
+            ).collect(Collectors.toList()));
+        });
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() -> Bukkit.getScheduler().runTask(plugin, () -> {
+            AsyncCatcher.enabled = true;
+            locked = false;
+            futures.stream()
+                    .filter(Objects::nonNull)
+                    .map(future -> {
+                        try {
+                            return future.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .forEach(ability -> {
+                        AbilityUser user = ability.getUser();
+                        if (instances.containsKey(user)) {
+                            List<Ability> userAbilities = instances.get(user);
+                            if (userAbilities.remove(ability)) {
+                                this.destroyInstance(ability);
+                            }
+                            if (userAbilities.isEmpty()) {
+                                instances.remove(user);
+                            } else {
+                                instances.put(user, userAbilities);
+                            }
+                        }
+                    });
+        }));
+    }
+
+    private void updateSync() {
         Iterator<Map.Entry<AbilityUser, List<Ability>>> playerIterator = instances.entrySet().iterator();
-
         List<Ability> removed = new ArrayList<>();
-
         while (playerIterator.hasNext()) {
             Map.Entry<AbilityUser, List<Ability>> entry = playerIterator.next();
             List<Ability> instances = entry.getValue();
@@ -65,7 +142,7 @@ public class AbilityInstanceService implements Listener {
                 Ability ability = iterator.next();
                 UpdateResult result = UpdateResult.REMOVE;
                 try {
-                    result = ability.update();
+                    result = ability.finalUpdate();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -78,12 +155,11 @@ public class AbilityInstanceService implements Listener {
                 playerIterator.remove();
             }
         }
-
         removed.forEach(this::destroyInstance);
     }
 
     private void destroyInstance(Ability ability) {
-        ability.destroy();
+        ability.finalDestroy();
     }
 
     public void changeOwner(Ability ability, AbilityUser user) {
@@ -105,7 +181,7 @@ public class AbilityInstanceService implements Listener {
             if (!user.canActivate(passive)) continue;
             Ability ability = passive.createAbility();
             ability.setUser(user);
-            ActivateResult activateResult = ability.activate(ActivationMethod.PASSIVE);
+            ActivateResult activateResult = ability.finalActivate(ActivationMethod.PASSIVE);
             if (activateResult == ActivateResult.ACTIVATE || activateResult == ActivateResult.ACTIVATE_AND_CANCEL_EVENT) {
                 this.registerInstance(user, ability);
             }

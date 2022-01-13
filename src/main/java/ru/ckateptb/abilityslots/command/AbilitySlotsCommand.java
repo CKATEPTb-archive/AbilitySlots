@@ -381,7 +381,6 @@ public class AbilitySlotsCommand {
             sender.sendMessage(config.getCommandPlayerIsNotAbilityUserMessage());
             return;
         }
-        AbilitySlotsConfig config = SpringContext.getInstance().getBean(AbilitySlotsConfig.class);
         StringBuilder builder = new StringBuilder();
         for (int slotIndex = 1; slotIndex <= 9; ++slotIndex) {
             AbilityInformation ability = user.getSlotContainer().getAbility(slotIndex);

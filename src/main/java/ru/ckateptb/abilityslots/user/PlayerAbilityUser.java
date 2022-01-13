@@ -18,7 +18,6 @@
 package ru.ckateptb.abilityslots.user;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import ru.ckateptb.abilityslots.ability.conditional.*;
@@ -29,7 +28,6 @@ import ru.ckateptb.abilityslots.category.conditional.PermissionCategoryCondition
 import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
-import ru.ckateptb.abilityslots.energy.event.AbilityUserCalculateMaxEnergyEvent;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
@@ -38,7 +36,6 @@ import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.storage.PlayerAbilityTable;
 import ru.ckateptb.abilityslots.storage.PresetAbilityTable;
 import ru.ckateptb.tablecloth.async.AsyncService;
-import ru.ckateptb.tablecloth.spring.SpringContext;
 import ru.ckateptb.tablecloth.storage.ormlite.dao.Dao;
 
 import java.sql.SQLException;
@@ -60,7 +57,6 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private final PermissionCategoryConditional categoryUseConditional = new PermissionCategoryConditional();
     private final Dao<PlayerAbilityTable, String> abilityStorage;
     private final Dao<PresetAbilityTable, String> presetStorage;
-    private final AbilitySlotsConfig config;
     private final HashMap<String, String> presets = new HashMap<>();
     private final String uuid;
     private final AsyncService asyncService;
@@ -68,8 +64,7 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     private double energy = 0;
 
     public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage, AsyncService asyncService) {
-        super(livingEntity);
-        this.config = config;
+        super(livingEntity, config);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
         this.abilityBindConditional.add(
@@ -168,7 +163,6 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
     @Override
     public double getMaxEnergy() {
         if (config.getCastPreventType() == AbilityCastPreventType.COOLDOWN) return Double.MAX_VALUE;
-//        AbilitySlotsConfig config = SpringContext.getInstance().getBean(AbilitySlotsConfig.class);
 //        AbilityUserCalculateMaxEnergyEvent event = new AbilityUserCalculateMaxEnergyEvent(this, config.getEnergyMax());
 //        Bukkit.getPluginManager().callEvent(event);
 //        return event.getMaxEnergy();
@@ -313,5 +307,15 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Gets whether the player is sprinting or not.
+     *
+     * @return true if player is sprinting.
+     */
+    @Override
+    public boolean isSprinting() {
+        return ((Player) livingEntity).isSprinting();
     }
 }

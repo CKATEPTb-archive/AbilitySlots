@@ -23,6 +23,8 @@ import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoardHolder;
+import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
+import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
 
@@ -31,12 +33,14 @@ import java.util.Map;
 
 public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder {
     protected final LivingEntity livingEntity;
+    protected final AbilitySlotsConfig config;
     private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
     private CompositeAbilityConditional abilityActivateConditional = new CompositeAbilityConditional();
 
-    public LivingEntityAbilityUser(LivingEntity livingEntity) {
+    public LivingEntityAbilityUser(LivingEntity livingEntity, AbilitySlotsConfig config) {
         this.livingEntity = livingEntity;
+        this.config = config;
         this.slotContainer = new DefaultAbilitySlotContainer();
         this.abilityActivateConditional.add(
                 new CategoryAbilityConditional(),
@@ -77,6 +81,9 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder 
 
     @Override
     public void setCooldown(AbilityInformation ability, long duration) {
+        if (config.getCastPreventType() == AbilityCastPreventType.ENERGY) {
+            return;
+        }
         long current = cooldowns.getOrDefault(ability, 0L);
 
         // Only set cooldown if the new one is larger.

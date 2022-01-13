@@ -20,9 +20,11 @@ package ru.ckateptb.abilityslots.entity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.tablecloth.math.ImmutableVector;
+import ru.ckateptb.tablecloth.util.WorldUtils;
 
 /**
  * Entity wrapper
@@ -81,5 +83,16 @@ public interface AbilityTargetEntity {
      */
     default World getWorld() {
         return getEntity().getWorld();
+    }
+
+    /**
+     * Returns true if the entity is supported by a block. This value is a
+     * state updated by the server and is not recalculated unless the entity
+     * moves.
+     *
+     * @return True if entity is on ground.
+     */
+    default boolean isOnGround() {
+        return WorldUtils.isOnGround(getEntity());
     }
 }

@@ -74,7 +74,7 @@ public class AbilityHandler implements Listener {
 
         Ability instance = ability.createAbility();
         instance.setUser(user);
-        ActivateResult activateResult = instance.activate(method);
+        ActivateResult activateResult = instance.finalActivate(method);
         if (isActivate(activateResult)) {
             abilityInstanceService.registerInstance(user, instance);
         }
