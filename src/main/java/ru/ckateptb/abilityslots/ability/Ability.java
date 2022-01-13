@@ -21,6 +21,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
@@ -89,9 +90,17 @@ public abstract class Ability {
         return SpringContext.getInstance().getBean(AbilityInstanceService.class);
     }
 
-    public void sync(Runnable runnable) {
+    public final void sync(Runnable runnable) {
         if (SpringContext.getInstance().getBean(AbilitySlotsConfig.class).isAsyncAbilities()) {
-            Bukkit.getScheduler().runTask(AbilitySlots.getInstance(), runnable);
+            try {
+                Bukkit.getScheduler().runTask(AbilitySlots.getInstance(), runnable);
+            } catch (IllegalPluginAccessException exception) {
+                try {
+                    runnable.run();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
         } else {
             runnable.run();
         }

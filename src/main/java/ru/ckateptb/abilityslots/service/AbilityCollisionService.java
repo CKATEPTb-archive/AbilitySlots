@@ -55,21 +55,18 @@ public class AbilityCollisionService {
                 .filter(ability -> AnnotatedElementUtils.isAnnotated(ability.getClass(), CollisionParticipant.class))
                 .filter(ability -> !ability.getColliders().isEmpty())
                 .collect(Collectors.toList());
+        if (instances.isEmpty()) return;
         if (canAsync && this.config.isAsyncCollisions()) updateAsync(new ArrayList<>(instances));
         else updateSync(instances);
     }
 
     private void updateAsync(Collection<Ability> instances) {
         if (locked) return;
-        if (instances.isEmpty()) return;
+        if(AsyncCatcher.enabled) AsyncCatcher.enabled = false;
         AbilitySlots plugin = AbilitySlots.getInstance();
         locked = true;
-        List<CompletableFuture<List<Ability>>> futures = new ArrayList<>(instances).stream().map(destroyer -> CompletableFuture.supplyAsync(() -> {
-            AsyncCatcher.enabled = false;
-            return calculateDestroy(destroyer, instances);
-        })).collect(Collectors.toList());
+        List<CompletableFuture<List<Ability>>> futures = instances.stream().map(destroyer -> CompletableFuture.supplyAsync(() -> calculateDestroy(destroyer, instances))).collect(Collectors.toList());
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() -> {
-            AsyncCatcher.enabled = true;
             locked = false;
             List<Ability> toRemove = new ArrayList<>();
             futures.stream()

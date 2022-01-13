@@ -31,7 +31,7 @@ import ru.ckateptb.tablecloth.config.YamlConfig;
 @Setter
 @Component
 public class AbilitySlotsConfig extends YamlConfig {
-    @ConfigField(name = "experimental.async", comment = """
+    @ConfigField(name = "experimental.async.abilities", comment = """
             ATTENTION! This is an experimental feature.
             I have no idea what consequences this could bring!
             I recommend making copies of the worlds if you decide to use it!

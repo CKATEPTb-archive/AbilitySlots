@@ -83,25 +83,21 @@ public class AbilityInstanceService implements Listener {
     private void updateAsync() {
         if (locked) return;
         if (instances.isEmpty()) return;
+        if (AsyncCatcher.enabled) AsyncCatcher.enabled = false;
         AbilitySlots plugin = AbilitySlots.getInstance();
-        List<CompletableFuture<Ability>> futures = new ArrayList<>();
         locked = true;
-        instances.forEach((user, value) -> {
-            List<Ability> abilities = new ArrayList<>(value);
-            futures.addAll(abilities.stream().map(ability -> CompletableFuture.supplyAsync(() -> {
-                        UpdateResult result = UpdateResult.REMOVE;
-                        AsyncCatcher.enabled = false;
-                        try {
-                            result = ability.finalUpdate();
-                        } catch (Exception e) {
-                            Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
-                        }
-                        return result == UpdateResult.REMOVE ? ability : null;
-                    })
-            ).collect(Collectors.toList()));
-        });
+        List<Ability> abilities = getInstances();
+        List<CompletableFuture<Ability>> futures = abilities.stream().map(ability -> CompletableFuture.supplyAsync(() -> {
+                    UpdateResult result = UpdateResult.REMOVE;
+                    try {
+                        result = ability.finalUpdate();
+                    } catch (Exception e) {
+                        Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
+                    }
+                    return result == UpdateResult.REMOVE ? ability : null;
+                })
+        ).collect(Collectors.toList());
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() -> Bukkit.getScheduler().runTask(plugin, () -> {
-            AsyncCatcher.enabled = true;
             locked = false;
             futures.stream()
                     .filter(Objects::nonNull)
