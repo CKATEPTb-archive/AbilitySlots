@@ -34,6 +34,7 @@ import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
@@ -112,6 +113,14 @@ public class AbilityUserService implements Listener {
                     abilityInstanceService.destroyInstanceType(user, passive);
                 }
             }
+        }
+    }
+
+    @Scheduled(fixedRate = 20)
+    public void regenEnergy() {
+        if(config.getCastPreventType() == AbilityCastPreventType.COOLDOWN) return;
+        for (AbilityUser user : users.values()) {
+            user.addEnergy(config.getEnergyRegen());
         }
     }
 

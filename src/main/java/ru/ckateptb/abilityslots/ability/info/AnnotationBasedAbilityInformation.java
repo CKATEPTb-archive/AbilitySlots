@@ -38,7 +38,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     private final String author;
     private final ActivationMethod[] activationMethods;
     private long cooldown;
-    private int cost;
+    private double cost;
     private boolean enabled;
     private String displayName;
     private String description;

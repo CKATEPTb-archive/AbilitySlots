@@ -23,14 +23,13 @@ import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoardHolder;
-import ru.ckateptb.abilityslots.energy.EnergyHolder;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder, EnergyHolder {
+public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder {
     protected final LivingEntity livingEntity;
     private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
@@ -42,6 +41,7 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
         this.abilityActivateConditional.add(
                 new CategoryAbilityConditional(),
                 new CooldownAbilityConditional(),
+                new EnergyAbilityConditional(),
                 new EnabledAbilityConditional(),
                 new GameModeAbilityConditional(GameMode.SPECTATOR),
                 new PermissionAbilityConditional()
@@ -148,8 +148,16 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder,
     }
 
     @Override
-    public void setEnergy(double value) {
+    public boolean removeEnergy(double value) {
+        return true;
+    }
 
+    @Override
+    public void addEnergy(double value) {
+    }
+
+    @Override
+    public void setEnergy(double value) {
     }
 
     @Override

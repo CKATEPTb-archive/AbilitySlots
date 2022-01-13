@@ -60,9 +60,9 @@ public interface AbilityInformation extends Listener {
 
     void setCooldown(long cooldown);
 
-    int getCost();
+    double getCost();
 
-    void setCost(int cost);
+    void setCost(double cost);
 
     boolean isActivatedBy(ActivationMethod method);
 
@@ -89,7 +89,7 @@ public interface AbilityInformation extends Listener {
         if (!(isActivatedBy(ActivationMethod.PASSIVE) && getActivationMethods().length == 1)) {
             setInstruction(config.getString(getConfigPath("instruction"), getInstruction()));
             setCooldown(config.getLong(getConfigPath("cooldown"), getCooldown()));
-            setCost(config.getInt(getConfigPath("cost"), getCost()));
+            setCost(config.getDouble(getConfigPath("cost"), getCost()));
         }
         event.scan(getAbilityClass(), null, this::getConfigPath);
     }

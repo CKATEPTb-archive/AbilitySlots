@@ -15,24 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ru.ckateptb.abilityslots.energy;
+package ru.ckateptb.abilityslots.energy.event;
 
-public interface EnergyHolder {
-    double getEnergy();
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import ru.ckateptb.abilityslots.user.AbilityUser;
 
-    boolean removeEnergy(double value);
+@AllArgsConstructor
+@Getter
+@Setter
+public class AbilityUserCalculateMaxEnergyEvent extends Event {
+    private static final HandlerList HANDLERS = new HandlerList();
 
-    void addEnergy(double value);
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
-    void setEnergy(double value);
+    private final AbilityUser user;
+    private double maxEnergy;
 
-    double getMaxEnergy();
-
-    void updateEnergyBar();
-
-    void enableEnergyBar();
-
-    void disableEnergyBar();
-
-    boolean isEnergyBarEnabled();
+    @NotNull
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
 }

@@ -15,24 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ru.ckateptb.abilityslots.energy;
+package ru.ckateptb.abilityslots.ability.conditional;
 
-public interface EnergyHolder {
-    double getEnergy();
+import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.user.AbilityUser;
 
-    boolean removeEnergy(double value);
-
-    void addEnergy(double value);
-
-    void setEnergy(double value);
-
-    double getMaxEnergy();
-
-    void updateEnergyBar();
-
-    void enableEnergyBar();
-
-    void disableEnergyBar();
-
-    boolean isEnergyBarEnabled();
+public class EnergyAbilityConditional implements AbilityConditional {
+    @Override
+    public boolean matches(AbilityUser user, AbilityInformation ability) {
+        return ability != null && ability.getCost() <= user.getEnergy();
+    }
 }

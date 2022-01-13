@@ -23,6 +23,7 @@ import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
+import ru.ckateptb.abilityslots.energy.EnergyHolder;
 import ru.ckateptb.abilityslots.entity.AbilityTarget;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
@@ -32,7 +33,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public interface AbilityUser extends AbilityTarget {
+public interface AbilityUser extends AbilityTarget, EnergyHolder {
 
     @Override
     LivingEntity getEntity();
@@ -101,5 +102,13 @@ public interface AbilityUser extends AbilityTarget {
 
     default void setCooldown(AbilityInformation information) {
         setCooldown(information, information.getCooldown());
+    }
+
+    default boolean removeEnergy(Ability ability) {
+        return removeEnergy(ability.getInformation());
+    }
+
+    default boolean removeEnergy(AbilityInformation information) {
+        return removeEnergy(information.getCost());
     }
 }

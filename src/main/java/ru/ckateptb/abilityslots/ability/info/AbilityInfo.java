@@ -39,7 +39,7 @@ public @interface AbilityInfo {
 
     long cooldown() default 0;
 
-    int cost() default 0;
+    double cost() default 0;
 
     String author();
 
