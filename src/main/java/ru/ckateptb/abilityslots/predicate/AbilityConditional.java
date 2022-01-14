@@ -39,6 +39,8 @@ public interface AbilityConditional extends Conditional<AbilityInformation> {
 
     AbilityConditional ENOUGH_ENERGY = (user, ability) -> ability != null && ability.getCost() <= user.getEnergy();
 
+    AbilityConditional NOT_PARALYZED = (user, ability) -> !user.getEntity().hasMetadata("tablecloth:paralyze");
+
     @Override
     boolean matches(AbilityUser user, AbilityInformation ability);
 
@@ -78,6 +80,11 @@ public interface AbilityConditional extends Conditional<AbilityInformation> {
 
         public Builder gameModeNot(GameMode... gameModes) {
             conditionals.add((user, ability) -> !user.isPlayer() || !Arrays.asList(gameModes).contains(user.getGameMode()));
+            return this;
+        }
+
+        public Builder paralyze() {
+            conditionals.add(NOT_PARALYZED);
             return this;
         }
 

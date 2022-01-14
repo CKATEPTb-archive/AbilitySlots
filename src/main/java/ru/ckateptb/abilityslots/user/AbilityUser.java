@@ -68,6 +68,10 @@ public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
 
     AbilityConditional getAbilityActivateConditional();
 
+    boolean addAbilityActivateConditional(AbilityConditional conditional);
+
+    boolean removeAbilityActivateConditional(AbilityConditional conditional);
+
     void setAbilityActivateConditional(AbilityConditional conditional);
 
     boolean canUse(Location location);

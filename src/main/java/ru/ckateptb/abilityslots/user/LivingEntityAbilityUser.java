@@ -28,7 +28,9 @@ import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder {
@@ -36,13 +38,16 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder 
     protected final AbilitySlotsConfig config;
     private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
+    private final List<AbilityConditional> customAbilityActivateConditionals = new ArrayList<>();
     private AbilityConditional abilityActivateConditional = new AbilityConditional.Builder()
             .hasPermission()
             .hasCategory()
             .withoutCooldown()
             .enoughEnergy()
+            .paralyze()
             .isEnabled()
             .gameModeNot(GameMode.SPECTATOR)
+            .custom((user, ability) -> customAbilityActivateConditionals.stream().allMatch(conditional -> conditional.matches(user, ability)))
             .build();
 
     public LivingEntityAbilityUser(LivingEntity livingEntity, AbilitySlotsConfig config) {
@@ -116,6 +121,16 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder 
     @Override
     public AbilityConditional getAbilityActivateConditional() {
         return abilityActivateConditional;
+    }
+
+    @Override
+    public boolean addAbilityActivateConditional(AbilityConditional conditional) {
+        return customAbilityActivateConditionals.add(conditional);
+    }
+
+    @Override
+    public boolean removeAbilityActivateConditional(AbilityConditional conditional) {
+        return customAbilityActivateConditionals.remove(conditional);
     }
 
     @Override
