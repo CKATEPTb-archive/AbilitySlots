@@ -110,6 +110,11 @@ public interface RemovalConditional extends Conditional<Ability> {
             return this;
         }
 
+        public Builder custom(RemovalConditional conditional) {
+            policies.add(conditional);
+            return this;
+        }
+
         public RemovalConditional build() {
             return (user, ability) -> policies.stream().anyMatch(police -> police.shouldRemove(user, ability));
         }
