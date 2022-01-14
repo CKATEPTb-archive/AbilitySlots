@@ -20,7 +20,7 @@ package ru.ckateptb.abilityslots.user;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
-import ru.ckateptb.abilityslots.ability.conditional.*;
+import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoardHolder;
 import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
@@ -36,20 +36,19 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder 
     protected final AbilitySlotsConfig config;
     private final Map<AbilityInformation, Long> cooldowns = new HashMap<>();
     protected AbilitySlotContainer slotContainer;
-    private CompositeAbilityConditional abilityActivateConditional = new CompositeAbilityConditional();
+    private AbilityConditional abilityActivateConditional = new AbilityConditional.Builder()
+            .hasPermission()
+            .hasCategory()
+            .withoutCooldown()
+            .enoughEnergy()
+            .isEnabled()
+            .gameModeNot(GameMode.SPECTATOR)
+            .build();
 
     public LivingEntityAbilityUser(LivingEntity livingEntity, AbilitySlotsConfig config) {
         this.livingEntity = livingEntity;
         this.config = config;
         this.slotContainer = new DefaultAbilitySlotContainer();
-        this.abilityActivateConditional.add(
-                new CategoryAbilityConditional(),
-                new CooldownAbilityConditional(),
-                new EnergyAbilityConditional(),
-                new EnabledAbilityConditional(),
-                new GameModeAbilityConditional(GameMode.SPECTATOR),
-                new PermissionAbilityConditional()
-        );
     }
 
     @Override
@@ -115,12 +114,12 @@ public class LivingEntityAbilityUser implements AbilityUser, AbilityBoardHolder 
     }
 
     @Override
-    public CompositeAbilityConditional getAbilityActivateConditional() {
+    public AbilityConditional getAbilityActivateConditional() {
         return abilityActivateConditional;
     }
 
     @Override
-    public void setAbilityActivateConditional(CompositeAbilityConditional conditional) {
+    public void setAbilityActivateConditional(AbilityConditional conditional) {
         this.abilityActivateConditional = conditional;
     }
 

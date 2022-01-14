@@ -15,10 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ru.ckateptb.abilityslots.conditional;
+package ru.ckateptb.abilityslots.predicate;
 
 import ru.ckateptb.abilityslots.user.AbilityUser;
 
-public interface AbilityUserConditional<T> {
+public interface Conditional<T> {
     boolean matches(AbilityUser user, T object);
 }

@@ -20,11 +20,11 @@ package ru.ckateptb.abilityslots.user;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.Ability;
-import ru.ckateptb.abilityslots.ability.conditional.CompositeAbilityConditional;
+import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.energy.EnergyHolder;
-import ru.ckateptb.abilityslots.entity.AbilityTarget;
+import ru.ckateptb.abilityslots.entity.AbilityTargetLiving;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.tablecloth.spring.SpringContext;
@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public interface AbilityUser extends AbilityTarget, EnergyHolder {
+public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
 
     @Override
     LivingEntity getEntity();
@@ -66,9 +66,9 @@ public interface AbilityUser extends AbilityTarget, EnergyHolder {
 
     boolean canActivate(AbilityInformation ability);
 
-    CompositeAbilityConditional getAbilityActivateConditional();
+    AbilityConditional getAbilityActivateConditional();
 
-    void setAbilityActivateConditional(CompositeAbilityConditional conditional);
+    void setAbilityActivateConditional(AbilityConditional conditional);
 
     boolean canUse(Location location);
 

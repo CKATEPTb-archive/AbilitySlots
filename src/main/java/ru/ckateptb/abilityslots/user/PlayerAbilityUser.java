@@ -20,14 +20,15 @@ package ru.ckateptb.abilityslots.user;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import ru.ckateptb.abilityslots.ability.conditional.*;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
-import ru.ckateptb.abilityslots.category.conditional.PermissionCategoryConditional;
+import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
+import ru.ckateptb.abilityslots.entity.AbilityTargetPlayer;
+import ru.ckateptb.abilityslots.predicate.CategoryConditional;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
@@ -47,14 +48,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PlayerAbilityUser extends LivingEntityAbilityUser {
+public class PlayerAbilityUser extends LivingEntityAbilityUser implements AbilityTargetPlayer {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final AbilityBoard abilityBoard;
     @Getter
     private final EnergyBar energyBar;
-    private final CompositeAbilityConditional abilityBindConditional = new CompositeAbilityConditional();
-    private final CompositeAbilityConditional abilityUseConditional = new CompositeAbilityConditional();
-    private final PermissionCategoryConditional categoryUseConditional = new PermissionCategoryConditional();
+    private final AbilityConditional abilityBindConditional;
+    private final AbilityConditional abilityUseConditional;
+    private final CategoryConditional categoryUseConditional = CategoryConditional.HAS_CATEGORY_PERMISSION;
     private final Dao<PlayerAbilityTable, String> abilityStorage;
     private final Dao<PresetAbilityTable, String> presetStorage;
     private final HashMap<String, String> presets = new HashMap<>();
@@ -67,17 +68,17 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
         super(livingEntity, config);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
-        this.abilityBindConditional.add(
-                new CategoryAbilityConditional(),
-                new EnabledAbilityConditional(),
-                new CanBindToSlotAbilityConditional(),
-                new PermissionAbilityConditional()
-        );
-        this.abilityUseConditional.add(
-                new CategoryAbilityConditional(),
-                new EnabledAbilityConditional(),
-                new PermissionAbilityConditional()
-        );
+        this.abilityBindConditional = new AbilityConditional.Builder()
+                .hasPermission()
+                .hasCategory()
+                .isEnabled()
+                .isBindable()
+                .build();
+        this.abilityUseConditional = new AbilityConditional.Builder()
+                .hasPermission()
+                .hasCategory()
+                .isEnabled()
+                .build();
         this.abilityStorage = storage.getPlayerAbilityTables();
         this.presetStorage = storage.getPresetAbilityTables();
         this.uuid = livingEntity.getUniqueId().toString();
@@ -307,15 +308,5 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Gets whether the player is sprinting or not.
-     *
-     * @return true if player is sprinting.
-     */
-    @Override
-    public boolean isSprinting() {
-        return ((Player) livingEntity).isSprinting();
     }
 }

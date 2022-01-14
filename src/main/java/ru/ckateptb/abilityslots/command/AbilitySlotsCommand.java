@@ -38,7 +38,6 @@ import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 import ru.ckateptb.tablecloth.minedown.MineDown;
-import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
