@@ -70,13 +70,15 @@ public interface RemovalConditional extends Conditional<Ability> {
         }
 
         public Builder sneaking(boolean shouldSneaking) {
-            policies.add(shouldSneaking ? IS_SNEAKING : IS_NOT_SNEAKING);
+            policies.add(shouldSneaking ? IS_NOT_SNEAKING : IS_SNEAKING);
             return this;
         }
 
         public Builder duration(long duration) {
-            long expire = System.currentTimeMillis() + duration;
-            policies.add((user, ability) -> System.currentTimeMillis() > expire);
+            if(duration > 0) {
+                long expire = System.currentTimeMillis() + duration;
+                policies.add((user, ability) -> System.currentTimeMillis() > expire);
+            }
             return this;
         }
 
