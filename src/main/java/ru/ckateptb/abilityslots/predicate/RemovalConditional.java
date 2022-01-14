@@ -27,6 +27,7 @@ import ru.ckateptb.abilityslots.user.AbilityUser;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 public interface RemovalConditional extends Conditional<Ability> {
@@ -75,7 +76,7 @@ public interface RemovalConditional extends Conditional<Ability> {
         }
 
         public Builder duration(long duration) {
-            if(duration > 0) {
+            if (duration > 0) {
                 long expire = System.currentTimeMillis() + duration;
                 policies.add((user, ability) -> System.currentTimeMillis() > expire);
             }
@@ -108,6 +109,30 @@ public interface RemovalConditional extends Conditional<Ability> {
             policies.add((user, ability) -> {
                 AbilityInformation information = user.getSelectedAbility();
                 return user.isPlayer() && (information == null || !information.getAbilityClass().equals(type));
+            });
+            return this;
+        }
+
+        public Builder costInterval(long interval) {
+            AtomicLong expiredEnergySafeTime = new AtomicLong(System.currentTimeMillis() + interval);
+            policies.add((user, ability) -> {
+                if(System.currentTimeMillis() > expiredEnergySafeTime.get()) {
+                    expiredEnergySafeTime.set(System.currentTimeMillis() + interval);
+                    return !user.removeEnergy(ability);
+                }
+                return false;
+            });
+            return this;
+        }
+
+        public Builder costInterval(double amount, long interval) {
+            AtomicLong expiredEnergySafeTime = new AtomicLong(System.currentTimeMillis() + interval);
+            policies.add((user, ability) -> {
+                if(System.currentTimeMillis() > expiredEnergySafeTime.get()) {
+                    expiredEnergySafeTime.set(System.currentTimeMillis() + interval);
+                    return !user.removeEnergy(amount);
+                }
+                return false;
             });
             return this;
         }
