@@ -19,14 +19,13 @@ package ru.ckateptb.abilityslots.service;
 
 import org.bukkit.Bukkit;
 import org.spigotmc.AsyncCatcher;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
-import ru.ckateptb.abilityslots.ability.info.CollisionParticipant;
+import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.tablecloth.collision.Collider;
 
@@ -52,7 +51,7 @@ public class AbilityCollisionService {
     @Scheduled(fixedRate = 1)
     public void update() {
         Collection<Ability> instances = abilityInstanceService.getInstances().stream()
-                .filter(ability -> AnnotatedElementUtils.isAnnotated(ability.getClass(), CollisionParticipant.class))
+                .filter(ability -> ability.getInformation().isCollisionParticipant())
                 .filter(ability -> !ability.getColliders().isEmpty())
                 .collect(Collectors.toList());
         if (instances.isEmpty()) return;
@@ -62,7 +61,7 @@ public class AbilityCollisionService {
 
     private void updateAsync(Collection<Ability> instances) {
         if (locked) return;
-        if(AsyncCatcher.enabled) AsyncCatcher.enabled = false;
+        if (AsyncCatcher.enabled) AsyncCatcher.enabled = false;
         AbilitySlots plugin = AbilitySlots.getInstance();
         locked = true;
         List<CompletableFuture<List<Ability>>> futures = instances.stream().map(destroyer -> CompletableFuture.supplyAsync(() -> calculateDestroy(destroyer, instances))).collect(Collectors.toList());
@@ -71,15 +70,15 @@ public class AbilityCollisionService {
             List<Ability> toRemove = new ArrayList<>();
             futures.stream()
                     .map(future -> {
-                try {
-                    return future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
-                }
-                return null;
-            })
-            .filter(Objects::nonNull)
-            .forEach(toRemove::addAll);
+                        try {
+                            return future.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .forEach(toRemove::addAll);
             Bukkit.getScheduler().runTask(plugin, () -> toRemove.forEach(ability -> abilityInstanceService.destroyInstance(ability.getUser(), ability)));
         });
     }
@@ -94,10 +93,8 @@ public class AbilityCollisionService {
 
     private List<Ability> calculateDestroy(Ability destroyer, Collection<Ability> instances) {
         List<Ability> toRemove = new ArrayList<>();
-        Class<? extends Ability> destroyerClass = destroyer.getClass();
-        CollisionParticipant destroyerInfo = destroyerClass.getAnnotation(CollisionParticipant.class);
-        List<Class<? extends Ability>> destroyerDestroyAbilities = Arrays.asList(destroyerInfo.destroyAbilities());
-        if (destroyerDestroyAbilities.isEmpty()) return toRemove;
+        AbilityInformation destroyerInfo = destroyer.getInformation();
+        if (destroyerInfo.getDestroyAbilities().isEmpty()) return toRemove;
 
         boolean isDestroyerDestroyed = false;
 
@@ -107,14 +104,12 @@ public class AbilityCollisionService {
             }
             if (destroyer.getUser().equals(target.getUser())) continue;
 
-            Class<? extends Ability> targetClass = target.getClass();
-            if (!destroyerDestroyAbilities.contains(targetClass)) continue;
+            AbilityInformation targetInfo = target.getInformation();
+            if (!destroyerInfo.canDestroyAbility(targetInfo)) continue;
 
             boolean isTargetDestroyed = false;
 
-            CollisionParticipant targetInfo = targetClass.getAnnotation(CollisionParticipant.class);
-            List<Class<? extends Ability>> targetDestroyAbilities = Arrays.asList(targetInfo.destroyAbilities());
-            boolean collideDestroyer = targetDestroyAbilities.contains(destroyerClass);
+            boolean collideDestroyer = targetInfo.canDestroyAbility(destroyerInfo);
             while (true) {
                 Collection<Collider> destroyerColliders = destroyer.getColliders();
                 if (destroyerColliders.isEmpty()) break;

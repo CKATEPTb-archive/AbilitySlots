@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bukkit.ChatColor;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
@@ -28,6 +29,9 @@ import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.util.TimeUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -37,6 +41,8 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     private final AbilityCategory category;
     private final String author;
     private final ActivationMethod[] activationMethods;
+    private final boolean collisionParticipant;
+    private final Set<AbilityInformation> destroyAbilities = new HashSet<>();
     private long cooldown;
     private double cost;
     private boolean enabled;
@@ -58,6 +64,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
         this.canBindToSlot = abilityInfo.canBindToSlot();
         this.author = abilityInfo.author();
         this.activationMethods = abilityInfo.activationMethods();
+        this.collisionParticipant = AnnotatedElementUtils.isAnnotated(abilityClass, CollisionParticipant.class);
     }
 
     @Override
@@ -93,5 +100,25 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
     @SneakyThrows
     public Ability createAbility() {
         return abilityClass.getConstructor().newInstance();
+    }
+
+    @Override
+    public boolean canDestroyAbility(AbilityInformation ability) {
+        return this.destroyAbilities.contains(ability);
+    }
+
+    @Override
+    public Set<AbilityInformation> getDestroyAbilities() {
+        return Collections.unmodifiableSet(this.destroyAbilities);
+    }
+
+    @Override
+    public boolean addDestroyAbility(AbilityInformation ability) {
+        return this.destroyAbilities.add(ability);
+    }
+
+    @Override
+    public boolean removeDestroyAbility(AbilityInformation ability) {
+        return this.destroyAbilities.remove(ability);
     }
 }

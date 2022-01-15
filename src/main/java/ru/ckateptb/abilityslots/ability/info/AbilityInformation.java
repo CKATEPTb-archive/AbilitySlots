@@ -23,15 +23,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
 import ru.ckateptb.tablecloth.minedown.MineDown;
 import ru.ckateptb.tablecloth.spring.SpringContext;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface AbilityInformation extends Listener {
     String getName();
@@ -78,10 +87,26 @@ public interface AbilityInformation extends Listener {
 
     Class<? extends Ability> getAbilityClass();
 
+    boolean isCollisionParticipant();
+
+    default boolean canDestroyAbility(Ability ability) {
+        return canDestroyAbility(ability.getInformation());
+    }
+
+    boolean canDestroyAbility(AbilityInformation ability);
+
+    Set<AbilityInformation> getDestroyAbilities();
+
+    boolean addDestroyAbility(AbilityInformation ability);
+
+    boolean removeDestroyAbility(AbilityInformation ability);
+
     @SneakyThrows
     @EventHandler
     default void on(YamlConfigLoadEvent event) {
-        if (event.getYamlConfig() != SpringContext.getInstance().getBean(AbilitySlotsConfig.class)) return;
+        AnnotationConfigApplicationContext context = SpringContext.getInstance();
+        if (event.getYamlConfig() != context.getBean(AbilitySlotsConfig.class)) return;
+        AbilityService abilityService = context.getBean(AbilityService.class);
         YamlConfiguration config = event.getBukkitConfig();
         setEnabled(config.getBoolean(getConfigPath("enabled"), isEnabled()));
         setDisplayName(config.getString(getConfigPath("name"), getDisplayName()));
@@ -90,6 +115,19 @@ public interface AbilityInformation extends Listener {
             setInstruction(config.getString(getConfigPath("instruction"), getInstruction()));
             setCooldown(config.getLong(getConfigPath("cooldown"), getCooldown()));
             setCost(config.getDouble(getConfigPath("cost"), getCost()));
+        }
+        if (isCollisionParticipant()) {
+            CollisionParticipant destroyerInfo = getAbilityClass().getAnnotation(CollisionParticipant.class);
+            List<String> def = Arrays.stream(destroyerInfo.destroyAbilities())
+                    .filter(destroyClass -> AnnotatedElementUtils.isAnnotated(destroyClass, AbilityInfo.class))
+                    .map(destroyClass -> destroyClass.getAnnotation(AbilityInfo.class))
+                    .map(AbilityInfo::name)
+                    .toList();
+            config.getList(getConfigPath("collision.destroy"), def).stream()
+                    .map(name -> (String) name)
+                    .map(abilityService::getAbility)
+                    .filter(Objects::nonNull)
+                    .forEach(this::addDestroyAbility);
         }
         event.scan(getAbilityClass(), null, this::getConfigPath);
     }
@@ -105,6 +143,9 @@ public interface AbilityInformation extends Listener {
             event.set(getConfigPath("instruction"), getInstruction());
             event.set(getConfigPath("cooldown"), getCooldown());
             event.set(getConfigPath("cost"), getCost());
+        }
+        if (isCollisionParticipant()) {
+            event.set(getConfigPath("collision.destroy"), getDestroyAbilities().stream().map(AbilityInformation::getName).collect(Collectors.toList()));
         }
         event.scan(getAbilityClass(), null, this::getConfigPath);
     }
