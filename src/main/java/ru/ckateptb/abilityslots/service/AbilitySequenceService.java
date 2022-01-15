@@ -111,7 +111,7 @@ public class AbilitySequenceService implements Listener {
     }
 
     private boolean equals(AbilityAction action, AbilityAction other) {
-        return action.ability() == other.ability() && action.action() == other.action();
+        return action.ability() == other.ability() && other.action().equals(action.action());
     }
 
     private AbilityAction createAbilityAction(AbilityInformation information, SequenceAction sequenceAction) {

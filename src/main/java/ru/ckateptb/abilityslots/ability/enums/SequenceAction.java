@@ -17,13 +17,28 @@
 
 package ru.ckateptb.abilityslots.ability.enums;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public enum SequenceAction {
-    LEFT_CLICK,
     LEFT_CLICK_ENTITY,
     LEFT_CLICK_BLOCK,
-    RIGHT_CLICK,
+    LEFT_CLICK(LEFT_CLICK_ENTITY, LEFT_CLICK_BLOCK),
     RIGHT_CLICK_ENTITY,
     RIGHT_CLICK_BLOCK,
+    RIGHT_CLICK(RIGHT_CLICK_ENTITY, RIGHT_CLICK_BLOCK),
     SNEAK,
-    SNEAK_RELEASE
+    SNEAK_RELEASE;
+
+    private final Set<SequenceAction> equals = new HashSet<>();
+
+    SequenceAction(SequenceAction... actions) {
+        this.equals.addAll(Arrays.asList(actions));
+        this.equals.add(this);
+    }
+
+    public boolean equals(SequenceAction action) {
+        return this.equals.contains(action);
+    }
 }
