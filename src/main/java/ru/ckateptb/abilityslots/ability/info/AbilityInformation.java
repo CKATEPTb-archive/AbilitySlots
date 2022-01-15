@@ -120,6 +120,7 @@ public interface AbilityInformation extends Listener {
             CollisionParticipant destroyerInfo = getAbilityClass().getAnnotation(CollisionParticipant.class);
             List<String> def = Arrays.stream(destroyerInfo.destroyAbilities())
                     .filter(destroyClass -> AnnotatedElementUtils.isAnnotated(destroyClass, AbilityInfo.class))
+                    .filter(destroyClass -> AnnotatedElementUtils.isAnnotated(destroyClass, CollisionParticipant.class))
                     .map(destroyClass -> destroyClass.getAnnotation(AbilityInfo.class))
                     .map(AbilityInfo::name)
                     .toList();
