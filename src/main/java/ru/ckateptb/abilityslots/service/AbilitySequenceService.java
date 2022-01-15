@@ -28,6 +28,7 @@ import ru.ckateptb.abilityslots.ability.enums.SequenceAction;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.ability.sequence.AbilityAction;
 import ru.ckateptb.abilityslots.ability.sequence.Sequence;
+import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 
@@ -40,10 +41,12 @@ public class AbilitySequenceService implements Listener {
     private final Map<AbilityInformation, List<AbilityAction>> sequences = new HashMap<>();
     private final Map<AbilityUser, List<AbilityAction>> userActions = new HashMap<>();
     private final AbilityInstanceService abilityInstanceService;
+    private final AbilitySlotsConfig config;
     private int maxSize = 0;
 
-    public AbilitySequenceService(AbilityInstanceService abilityInstanceService) {
+    public AbilitySequenceService(AbilityInstanceService abilityInstanceService, AbilitySlotsConfig config) {
         this.abilityInstanceService = abilityInstanceService;
+        this.config = config;
     }
 
     public void registerSequence(AbilityInformation information, Sequence sequence) {
@@ -67,6 +70,9 @@ public class AbilitySequenceService implements Listener {
             return ActivateResult.NOT_ACTIVATE;
         }
         actions.add(abilityAction);
+        if(config.isSequenceDebug()) {
+            user.getEntity().sendMessage(String.format("%s > %s", abilityAction.ability().getSimpleName(), abilityAction.action().name()));
+        }
         if (actions.size() > maxSize) actions.remove(0);
         userActions.put(user, actions);
 

@@ -44,6 +44,8 @@ public class AbilitySlotsConfig extends YamlConfig {
     private boolean asyncAbilities = false;
     @ConfigField(name = "experimental.async.collision", comment = "Collisions may not always work, for the same reason.")
     private boolean asyncCollisions = false;
+    @ConfigField(name = "debug.sequence", comment = "Debug ability action for sequences")
+    private boolean sequenceDebug = false;
 
     @ConfigField(name = "database.mysql.enabled")
     private boolean mysqlEnable = false;
