@@ -19,10 +19,13 @@ package ru.ckateptb.abilityslots.predicate;
 
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.user.AbilityUser;
+import ru.ckateptb.tablecloth.math.ImmutableVector;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -137,8 +140,112 @@ public interface RemovalConditional extends Conditional<Ability> {
             return this;
         }
 
+        public Builder water(boolean shouldStayInWater) {
+            policies.add((user, ability) -> {
+                boolean inWater = user.getLocation().toBlock(user.getWorld()).getType() == Material.WATER;
+                return inWater == !shouldStayInWater;
+            });
+            return this;
+        }
+
+        public Builder water(ImmutableVector location, boolean shouldBeWater) {
+            policies.add((user, ability) -> {
+                boolean inWater = location.toBlock(user.getWorld()).getType() == Material.WATER;
+                return inWater == !shouldBeWater;
+            });
+            return this;
+        }
+
+        public Builder water(Location location, boolean shouldBeWater) {
+            policies.add((user, ability) -> {
+                boolean inWater = location.getBlock().getType() == Material.WATER;
+                return inWater == !shouldBeWater;
+            });
+            return this;
+        }
+
+        public Builder liquid(boolean shouldStayInLiquid) {
+            policies.add((user, ability) -> {
+                boolean inLiquid = user.getLocation().toBlock(user.getWorld()).isLiquid();
+                return inLiquid == !shouldStayInLiquid;
+            });
+            return this;
+        }
+
+        public Builder liquid(ImmutableVector location, boolean shouldBeLiquid) {
+            policies.add((user, ability) -> {
+                boolean inLiquid = location.toBlock(user.getWorld()).isLiquid();
+                return inLiquid == !shouldBeLiquid;
+            });
+            return this;
+        }
+
+        public Builder liquid(Location location, boolean shouldBeLiquid) {
+            policies.add((user, ability) -> {
+                boolean inLiquid = location.getBlock().isLiquid();
+                return inLiquid == !shouldBeLiquid;
+            });
+            return this;
+        }
+
+        public Builder passable(boolean shouldStayInPassable) {
+            policies.add((user, ability) -> {
+                boolean passable = user.getLocation().toBlock(user.getWorld()).isPassable();
+                return passable == !shouldStayInPassable;
+            });
+            return this;
+        }
+
+        public Builder passable(ImmutableVector location, boolean shouldBePassable) {
+            policies.add((user, ability) -> {
+                boolean passable = location.toBlock(user.getWorld()).isPassable();
+                return passable == !shouldBePassable;
+            });
+            return this;
+        }
+
+        public Builder passable(Location location, boolean shouldBePassable) {
+            policies.add((user, ability) -> {
+                boolean passable = location.getBlock().isPassable();
+                return passable == !shouldBePassable;
+            });
+            return this;
+        }
+
+        public Builder passableNoLiquid(boolean shouldStayInPassable) {
+            policies.add((user, ability) -> {
+                Block block = user.getLocation().toBlock(user.getWorld());
+                boolean passable = block.isPassable() && !block.isLiquid();
+                return passable == !shouldStayInPassable;
+            });
+            return this;
+        }
+
+        public Builder passableNoLiquid(ImmutableVector location, boolean shouldBePassable) {
+            policies.add((user, ability) -> {
+                Block block = location.toBlock(user.getWorld());
+                boolean passable = block.isPassable() && !block.isLiquid();
+                return passable == !shouldBePassable;
+            });
+            return this;
+        }
+
+        public Builder passableNoLiquid(Location location, boolean shouldBePassable) {
+            policies.add((user, ability) -> {
+                Block block = location.getBlock();
+                boolean passable = block.isPassable() && !block.isLiquid();
+                return passable == !shouldBePassable;
+            });
+            return this;
+        }
+
         public Builder custom(RemovalConditional conditional) {
             policies.add(conditional);
+            return this;
+        }
+
+        public Builder remove(RemovalConditional conditional) {
+            policies.remove(conditional);
             return this;
         }
 
