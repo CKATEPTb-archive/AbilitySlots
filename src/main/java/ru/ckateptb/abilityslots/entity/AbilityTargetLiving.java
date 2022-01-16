@@ -22,6 +22,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -689,5 +690,32 @@ public interface AbilityTargetLiving extends AbilityTarget {
      */
     default boolean isPlayer() {
         return false;
+    }
+
+    /**
+     * Note: The returned value includes an offset and is ideal for showing charging particles.
+     * @return a vector which represents the user's main hand location
+     */
+    default ImmutableVector getMainHandLocation() {
+        Entity entity = getEntity();
+        return getHandLocation(entity instanceof Player player ? player.getMainHand() : null);
+    }
+
+    /**
+     * Gets the user's specified hand position.
+     * @return a vector which represents the user's specified hand location
+     */
+    default ImmutableVector getHandLocation(MainHand hand) {
+        ImmutableVector direction = getDirection();
+        if(hand == null) return getEyeLocation().add(direction.multiply(0.4));
+        LivingEntity entity = getEntity();
+        double angle = Math.toRadians(entity.getEyeLocation().getYaw());
+        ImmutableVector location = getLocation();
+        ImmutableVector offset = direction.multiply(0.4).add(0, 1.2, 0);
+        if (hand == MainHand.LEFT) {
+            return location.add(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset);
+        } else {
+            return location.subtract(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset);
+        }
     }
 }
