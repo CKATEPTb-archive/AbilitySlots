@@ -95,6 +95,15 @@ public interface RemovalConditional extends Conditional<Ability> {
             return this;
         }
 
+        public Builder range(Supplier<Location> from, Supplier<Location> to, Supplier<Double> range) {
+            policies.add((user, ability) -> {
+                Location fromLocation = from.get();
+                Location toLocation = to.get();
+                return !Objects.equals(fromLocation.getWorld(), toLocation.getWorld()) || fromLocation.distance(toLocation) > range.get();
+            });
+            return this;
+        }
+
         public Builder canUse(Supplier<Location> location) {
             policies.add((user, ability) -> !user.canUse(location.get()));
             return this;
