@@ -545,6 +545,40 @@ public interface AbilityTargetLiving extends AbilityTarget {
     }
 
     /**
+     * Gets the yaw of this location, measured in degrees.
+     * <ul>
+     * <li>A yaw of 0 or 360 represents the positive z direction.
+     * <li>A yaw of 180 represents the negative z direction.
+     * <li>A yaw of 90 represents the negative x direction.
+     * <li>A yaw of 270 represents the positive x direction.
+     * </ul>
+     * Increasing yaw values are the equivalent of turning to your
+     * right-facing, increasing the scale of the next respective axis, and
+     * decreasing the scale of the previous axis.
+     *
+     * @return the rotation's yaw
+     */
+    default float getYaw() {
+        return getEntity().getEyeLocation().getYaw();
+    }
+
+    /**
+     * Gets the pitch of this location, measured in degrees.
+     * <ul>
+     * <li>A pitch of 0 represents level forward facing.
+     * <li>A pitch of 90 represents downward facing, or negative y
+     *     direction.
+     * <li>A pitch of -90 represents upward facing, or positive y direction.
+     * </ul>
+     * Increasing pitch values the equivalent of looking down.
+     *
+     * @return the incline's pitch
+     */
+    default float getPitch() {
+        return getEntity().getEyeLocation().getPitch();
+    }
+
+    /**
      * Gets {@link ImmutableVector} of {@link LivingEntity} direction
      *
      * @return an {@link ImmutableVector} pointing the direction of entity eye location's pitch and yaw
@@ -694,6 +728,7 @@ public interface AbilityTargetLiving extends AbilityTarget {
 
     /**
      * Note: The returned value includes an offset and is ideal for showing charging particles.
+     *
      * @return a vector which represents the user's main hand location
      */
     default ImmutableVector getMainHandLocation() {
@@ -703,19 +738,16 @@ public interface AbilityTargetLiving extends AbilityTarget {
 
     /**
      * Gets the user's specified hand position.
+     *
      * @return a vector which represents the user's specified hand location
      */
     default ImmutableVector getHandLocation(MainHand hand) {
         ImmutableVector direction = getDirection();
-        if(hand == null) return getEyeLocation().add(direction.multiply(0.4));
-        LivingEntity entity = getEntity();
-        double angle = Math.toRadians(entity.getEyeLocation().getYaw());
+        if (hand == null) return getEyeLocation().add(direction.multiply(0.4));
+        double angle = Math.toRadians(getYaw());
         ImmutableVector location = getLocation();
         ImmutableVector offset = direction.multiply(0.4).add(0, 1.2, 0);
-        if (hand == MainHand.LEFT) {
-            return location.add(new ImmutableVector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset));
-        } else {
-            return location.subtract(new ImmutableVector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset));
-        }
+        ImmutableVector vector = new ImmutableVector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3);
+        return (hand == MainHand.LEFT ? location.add(vector) : location.subtract(vector)).add(offset);
     }
 }
