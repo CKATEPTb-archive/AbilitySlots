@@ -36,11 +36,14 @@ import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.collision.Collider;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 public abstract class Ability {
+    protected final AbilityInstanceService instanceService = SpringContext.getInstance().getBean(AbilityInstanceService.class);
     protected AbilityUser user;
     protected LivingEntity livingEntity;
     protected World world;
@@ -87,7 +90,11 @@ public abstract class Ability {
     }
 
     public AbilityInstanceService getAbilityInstanceService() {
-        return SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return instanceService;
+    }
+
+    public void changeOwner(AbilityUser user) {
+        instanceService.changeOwner(this, user);
     }
 
     public final void sync(Runnable runnable) {

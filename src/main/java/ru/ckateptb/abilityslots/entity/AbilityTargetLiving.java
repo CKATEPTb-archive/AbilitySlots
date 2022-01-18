@@ -727,6 +727,13 @@ public interface AbilityTargetLiving extends AbilityTarget {
     }
 
     /**
+     * @return {@link MainHand#RIGHT}
+     */
+    default MainHand getMainHand() {
+        return MainHand.RIGHT;
+    }
+
+    /**
      * Note: The returned value includes an offset and is ideal for showing charging particles.
      *
      * @return a vector which represents the user's main hand location

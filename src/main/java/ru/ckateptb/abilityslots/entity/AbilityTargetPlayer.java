@@ -19,6 +19,7 @@ package ru.ckateptb.abilityslots.entity;
 
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.MainHand;
 import org.jetbrains.annotations.NotNull;
 
 public interface AbilityTargetPlayer extends AbilityTargetLiving {
@@ -91,5 +92,14 @@ public interface AbilityTargetPlayer extends AbilityTargetLiving {
      */
     default boolean isPlayer() {
         return true;
+    }
+
+    /**
+     * Gets the player's selected main hand
+     *
+     * @return the players main hand
+     */
+    default MainHand getMainHand() {
+        return getEntity().getMainHand();
     }
 }

@@ -20,16 +20,17 @@ package ru.ckateptb.abilityslots.user;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import ru.ckateptb.abilityslots.ability.Ability;
-import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.energy.EnergyHolder;
 import ru.ckateptb.abilityslots.entity.AbilityTargetLiving;
+import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -114,5 +115,55 @@ public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
 
     default boolean removeEnergy(AbilityInformation information) {
         return removeEnergy(information.getCost());
+    }
+
+    default void registerInstance(Ability instance) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        service.registerInstance(this, instance);
+    }
+
+    default void createPassives() {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        service.createPassives(this);
+    }
+
+    default void clearPassives() {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        service.clearPassives(this);
+    }
+
+    default boolean hasAbility(Class<? extends Ability> abilityType) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.hasAbility(this, abilityType);
+    }
+
+    default boolean hasAbility(AbilityInformation information) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.hasAbility(this, information.getAbilityClass());
+    }
+
+    default void destroyInstance(Ability ability) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        service.destroyInstance(this, ability);
+    }
+
+    default boolean destroyInstances(AbilityInformation information) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.destroyInstanceType(this, information);
+    }
+
+    default boolean destroyInstances(Class<? extends Ability> clazz) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.destroyInstanceType(this, clazz);
+    }
+
+    default List<Ability> getAbilityInstances() {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.getAbilityUserInstances(this);
+    }
+
+    default <T extends Ability> List<T> getAbilityInstances(Class<T> type) {
+        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        return service.getAbilityUserInstances(this, type);
     }
 }
