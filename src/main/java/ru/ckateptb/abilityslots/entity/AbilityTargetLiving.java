@@ -713,9 +713,9 @@ public interface AbilityTargetLiving extends AbilityTarget {
         ImmutableVector location = getLocation();
         ImmutableVector offset = direction.multiply(0.4).add(0, 1.2, 0);
         if (hand == MainHand.LEFT) {
-            return location.add(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset);
+            return location.add(new ImmutableVector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset));
         } else {
-            return location.subtract(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset);
+            return location.subtract(new ImmutableVector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(0.3).add(offset));
         }
     }
 }
