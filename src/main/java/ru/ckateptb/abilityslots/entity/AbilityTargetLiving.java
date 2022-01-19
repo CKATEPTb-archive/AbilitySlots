@@ -62,13 +62,11 @@ public interface AbilityTargetLiving extends AbilityTarget {
      * @param ignoreNoDamageTicks cause this damage ignoring noDamageTicks
      */
     default void damage(double amount, Ability ability, boolean ignoreNoDamageTicks) {
-        ability.sync(() -> {
-            LivingEntity entity = getEntity();
-            if (ignoreNoDamageTicks) {
-                entity.setNoDamageTicks(0);
-            }
-            entity.damage(amount, ability.getUser().getEntity());
-        });
+        LivingEntity entity = getEntity();
+        if (ignoreNoDamageTicks) {
+            entity.setNoDamageTicks(0);
+        }
+        entity.damage(amount, ability.getUser().getEntity());
     }
 
     /**
@@ -595,7 +593,7 @@ public interface AbilityTargetLiving extends AbilityTarget {
      * @return whether the effect could be added
      */
     default void addPotionEffect(Ability ability, @NotNull PotionEffect effect) {
-        ability.sync(() -> getEntity().addPotionEffect(effect));
+        getEntity().addPotionEffect(effect);
     }
 
     /**
@@ -613,7 +611,7 @@ public interface AbilityTargetLiving extends AbilityTarget {
      */
     @Deprecated
     default void addPotionEffect(Ability ability, @NotNull PotionEffect effect, boolean force) {
-        ability.sync(() -> getEntity().addPotionEffect(effect, force));
+        getEntity().addPotionEffect(effect, force);
     }
 
     /**
@@ -625,7 +623,7 @@ public interface AbilityTargetLiving extends AbilityTarget {
      * @return whether all of the effects could be added
      */
     default void addPotionEffects(Ability ability, @NotNull Collection<PotionEffect> effects) {
-        ability.sync(() -> getEntity().addPotionEffects(effects));
+        getEntity().addPotionEffects(effects);
     }
 
     /**
@@ -661,7 +659,7 @@ public interface AbilityTargetLiving extends AbilityTarget {
      * @param type    the potion type to remove
      */
     default void removePotionEffect(Ability ability, @NotNull PotionEffectType type) {
-        ability.sync(() -> getEntity().removePotionEffect(type));
+        getEntity().removePotionEffect(type);
     }
 
     /**

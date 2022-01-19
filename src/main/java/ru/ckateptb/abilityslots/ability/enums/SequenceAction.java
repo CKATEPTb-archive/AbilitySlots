@@ -28,6 +28,7 @@ public enum SequenceAction {
     RIGHT_CLICK_ENTITY,
     RIGHT_CLICK_BLOCK,
     RIGHT_CLICK(RIGHT_CLICK_ENTITY, RIGHT_CLICK_BLOCK),
+    HAND_SWAP, // default F keybind
     SNEAK,
     SNEAK_RELEASE;
 

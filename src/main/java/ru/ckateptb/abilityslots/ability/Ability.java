@@ -18,28 +18,22 @@
 package ru.ckateptb.abilityslots.ability;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.plugin.IllegalPluginAccessException;
-import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInfo;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.collision.Collider;
 import ru.ckateptb.tablecloth.spring.SpringContext;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Getter
 public abstract class Ability {
@@ -47,25 +41,10 @@ public abstract class Ability {
     protected AbilityUser user;
     protected LivingEntity livingEntity;
     protected World world;
-    private boolean destroyed;
-
-    public final ActivateResult finalActivate(ActivationMethod method) {
-        this.destroyed = false;
-        return this.activate(method);
-    }
 
     public abstract ActivateResult activate(ActivationMethod method);
 
-    public final UpdateResult finalUpdate() {
-        return this.destroyed ? UpdateResult.REMOVE : this.update();
-    }
-
     public abstract UpdateResult update();
-
-    public final void finalDestroy() {
-        this.destroyed = true;
-        this.destroy();
-    }
 
     public abstract void destroy();
 
@@ -95,21 +74,5 @@ public abstract class Ability {
 
     public void changeOwner(AbilityUser user) {
         instanceService.changeOwner(this, user);
-    }
-
-    public final void sync(Runnable runnable) {
-        if (SpringContext.getInstance().getBean(AbilitySlotsConfig.class).isAsyncAbilities()) {
-            try {
-                Bukkit.getScheduler().runTask(AbilitySlots.getInstance(), runnable);
-            } catch (IllegalPluginAccessException exception) {
-                try {
-                    runnable.run();
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-        } else {
-            runnable.run();
-        }
     }
 }

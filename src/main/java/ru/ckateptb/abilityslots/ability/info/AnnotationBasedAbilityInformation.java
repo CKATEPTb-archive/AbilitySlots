@@ -69,7 +69,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
 
     @Override
     public boolean isActivatedBy(ActivationMethod method) {
-        return Arrays.asList(this.activationMethods).contains(method);
+        return Arrays.stream(this.activationMethods).anyMatch(activationMethod -> activationMethod.equals(method));
     }
 
     @Override

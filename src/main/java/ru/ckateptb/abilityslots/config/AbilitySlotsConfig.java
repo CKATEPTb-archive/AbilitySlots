@@ -31,19 +31,6 @@ import ru.ckateptb.tablecloth.config.YamlConfig;
 @Setter
 @Component
 public class AbilitySlotsConfig extends YamlConfig {
-    @ConfigField(name = "experimental.async.abilities", comment = """
-            ATTENTION! This is an experimental feature.
-            I have no idea what consequences this could bring!
-            I recommend making copies of the worlds if you decide to use it!
-            Why is this needed?
-            This will greatly reduce the load on the server!
-            What are the implications?
-            Abilities will skip ticks instead of slowing down the server.
-            If my memory serves me, it might break your world or cause strange log errors, please report these errors to your addon developers.
-            If you are an addon developer - make sure this bug is not caused by you, then submit it to AbilitySlots issues""")
-    private boolean asyncAbilities = false;
-    @ConfigField(name = "experimental.async.collision", comment = "Collisions may not always work, for the same reason.")
-    private boolean asyncCollisions = false;
     @ConfigField(name = "debug.sequence", comment = "Debug ability action for sequences")
     private boolean sequenceDebug = false;
 

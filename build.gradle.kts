@@ -15,9 +15,9 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
-    if (!isSnapshot()) {
+//    if (!isSnapshot()) {
 //        withJavadocJar()
-    }
+//    }
     withSourcesJar()
 }
 
@@ -43,6 +43,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.22")
     annotationProcessor("org.projectlombok:lombok:1.18.22")
 
+//    paperDevBundle("1.18.1-R0.1-SNAPSHOT")
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
     compileOnly("ru.ckateptb:tablecloth:+")
@@ -88,9 +89,9 @@ publishing {
                 artifact(tasks.shadowJar) {
                     classifier = ""
                 }
-                if (!isSnapshot()) {
+//                if (!isSnapshot()) {
 //                    artifact(tasks.javadoc)
-                }
+//                }
                 artifact(tasks["sourcesJar"])
             }
 //            pom {

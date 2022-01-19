@@ -17,35 +17,27 @@
 
 package ru.ckateptb.abilityslots.service;
 
-import org.bukkit.Bukkit;
-import org.spigotmc.AsyncCatcher;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
-import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.tablecloth.collision.Collider;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @EnableScheduling
 public class AbilityCollisionService {
     private final AbilityInstanceService abilityInstanceService;
-    private final AbilitySlotsConfig config;
-    private final boolean canAsync;
-    private boolean locked = false;
 
-    public AbilityCollisionService(AbilityInstanceService abilityInstanceService, AbilitySlotsConfig config) {
+    public AbilityCollisionService(AbilityInstanceService abilityInstanceService) {
         this.abilityInstanceService = abilityInstanceService;
-        this.config = config;
-        this.canAsync = AbilityInstanceService.isCanAsync();
     }
 
     @Scheduled(fixedRate = 1)
@@ -55,35 +47,6 @@ public class AbilityCollisionService {
                 .filter(ability -> !ability.getColliders().isEmpty())
                 .collect(Collectors.toList());
         if (instances.isEmpty()) return;
-        if (canAsync && this.config.isAsyncCollisions()) updateAsync(new ArrayList<>(instances));
-        else updateSync(instances);
-    }
-
-    private void updateAsync(Collection<Ability> instances) {
-        if (locked) return;
-        if (AsyncCatcher.enabled) AsyncCatcher.enabled = false;
-        AbilitySlots plugin = AbilitySlots.getInstance();
-        locked = true;
-        List<CompletableFuture<List<Ability>>> futures = instances.stream().map(destroyer -> CompletableFuture.supplyAsync(() -> calculateDestroy(destroyer, instances))).collect(Collectors.toList());
-        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() -> {
-            locked = false;
-            List<Ability> toRemove = new ArrayList<>();
-            futures.stream()
-                    .map(future -> {
-                        try {
-                            return future.get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            Bukkit.getScheduler().runTask(plugin, (Runnable) e::printStackTrace);
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull)
-                    .forEach(toRemove::addAll);
-            Bukkit.getScheduler().runTask(plugin, () -> toRemove.forEach(ability -> abilityInstanceService.destroyInstance(ability.getUser(), ability)));
-        });
-    }
-
-    private void updateSync(Collection<Ability> instances) {
         List<Ability> toRemove = new ArrayList<>();
         for (Ability destroyer : instances) {
             toRemove.addAll(calculateDestroy(destroyer, instances));
@@ -118,12 +81,10 @@ public class AbilityCollisionService {
                 int totalColliders = destroyerColliders.size() + targetColliders.size();
                 Map.Entry<Collider, Collider> collisionResult = checkCollision(destroyerColliders, targetColliders);
                 if (collisionResult == null) break;
-                if (target.isDestroyed()) break;
                 if (target.destroyCollider(destroyer, collisionResult.getKey(), collisionResult.getValue()) == AbilityCollisionResult.DESTROY_INSTANCE) {
                     isTargetDestroyed = true;
                 }
                 if (collideDestroyer) {
-                    if (destroyer.isDestroyed()) break;
                     if (destroyer.destroyCollider(target, collisionResult.getValue(), collisionResult.getKey()) == AbilityCollisionResult.DESTROY_INSTANCE) {
                         isDestroyerDestroyed = true;
                     }
