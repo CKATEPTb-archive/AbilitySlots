@@ -75,6 +75,17 @@ public class AbilitySlotsConfig extends YamlConfig {
     @ConfigField(name = "global.maxPresetsPerPlayer", comment = "The maximum number of presets a player can create")
     private int maxPresetsPerPlayer = 10;
 
+    @ConfigField(name = "global.protection.cacheDuration", comment = "For optimization, we use cached data about whether the user can use abilities in the specified location. Specify how long (in millies) the cached data stays up to date. The higher the value, the lower the load and the accuracy.")
+    private long protectionCacheDuration = 30000;
+    @ConfigField(name = "global.protection.worldguard")
+    private boolean protectionWorldGuard = true;
+    @ConfigField(name = "global.protection.lwc")
+    private boolean protectionLWC = true;
+    @ConfigField(name = "global.protection.towny")
+    private boolean protectionTowny = true;
+    @ConfigField(name = "global.protection.griefprevention")
+    private boolean protectionGriefPrevention = true;
+
     @ConfigField(name = "global.board.enabled", comment = "Displaying current abilities in the scoreboard")
     private boolean boardEnabled = true;
     @ConfigField(name = "global.board.header")

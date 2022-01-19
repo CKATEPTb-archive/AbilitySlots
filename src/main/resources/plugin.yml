@@ -3,6 +3,7 @@ version: '${projectVersion}'
 main: ru.ckateptb.abilityslots.AbilitySlots
 api-version: 1.17
 depend: [ Tablecloth, CommandAPI ]
+softdepend: [ WorldGuard, GriefPrevention, Towny, LWC, LuckPerms]
 authors: [ CKATEPTb ]
 description: Ability manager. Craft and use passive, combo, and slot-based abilities.
 permissions:

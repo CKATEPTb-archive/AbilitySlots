@@ -23,14 +23,15 @@ import org.bukkit.entity.Player;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.board.AbilityBoard;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
-import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.config.AbilityCastPreventType;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.energy.EnergyBar;
 import ru.ckateptb.abilityslots.entity.AbilityTargetPlayer;
+import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.predicate.CategoryConditional;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
+import ru.ckateptb.abilityslots.service.ProtectionService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
 import ru.ckateptb.abilityslots.slot.DefaultAbilitySlotContainer;
 import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
@@ -61,10 +62,11 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser implements Abilit
     private final HashMap<String, String> presets = new HashMap<>();
     private final String uuid;
     private final AsyncService asyncService;
+    private final ProtectionService protectionService;
     private boolean presetsIsLocked = false;
     private double energy = 0;
 
-    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage, AsyncService asyncService) {
+    public PlayerAbilityUser(Player livingEntity, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AbilitySlotsStorage storage, AsyncService asyncService, ProtectionService protectionService) {
         super(livingEntity, config);
         this.abilityBoard = new AbilityBoard(this, config, abilityService);
         this.energyBar = new EnergyBar(this, config);
@@ -83,6 +85,7 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser implements Abilit
         this.presetStorage = storage.getPresetAbilityTables();
         this.uuid = livingEntity.getUniqueId().toString();
         this.asyncService = asyncService;
+        this.protectionService = protectionService;
         this.loadAbilityStorageAsync();
         this.loadPresetStorageAsync();
         abilityInstanceService.createPassives(this);
@@ -90,7 +93,7 @@ public class PlayerAbilityUser extends LivingEntityAbilityUser implements Abilit
 
     @Override
     public boolean canUse(Location location) {
-        return true;
+        return protectionService.canUse(this, location);
     }
 
     public int getHeldItemSlot() {

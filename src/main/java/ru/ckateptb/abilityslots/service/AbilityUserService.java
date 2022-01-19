@@ -60,19 +60,21 @@ public class AbilityUserService implements Listener {
     private final AbilityService abilityService;
     private final AbilityInstanceService abilityInstanceService;
     private final AsyncService asyncService;
+    private final ProtectionService protectionService;
 
-    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AsyncService asyncService) {
+    public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AsyncService asyncService, ProtectionService protectionService) {
         this.storage = storage;
         this.config = config;
         this.abilityService = abilityService;
         this.abilityInstanceService = abilityInstanceService;
         this.asyncService = asyncService;
+        this.protectionService = protectionService;
     }
 
     public PlayerAbilityUser getAbilityPlayer(Player player) {
         AbilityUser abilityUser = users.get(player);
         if (abilityUser == null) {
-            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService, storage, asyncService);
+            PlayerAbilityUser user = new PlayerAbilityUser(player, config, abilityService, abilityInstanceService, storage, asyncService, protectionService);
             user.enableAbilityBoard();
             user.enableEnergyBar();
             users.put(player, user);

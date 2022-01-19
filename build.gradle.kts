@@ -28,6 +28,8 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.codemc.org/repository/maven-public/")
+    maven("https://maven.enginehub.org/repo/") // WorldGuard
+    maven("https://ci.ender.zone/plugin/repository/everything/") // LWC
 //    maven {
 //        url = uri("https://maven.pkg.github.com/CKATEPTb/Tablecloth")
 //        credentials {
@@ -45,6 +47,14 @@ dependencies {
 
     compileOnly("ru.ckateptb:tablecloth:+")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
+
+    // PROTECTION PLUGINS
+    compileOnly("com.github.TechFortress", "GriefPrevention", "16.17.1")
+    compileOnly("com.github.TownyAdvanced", "Towny", "0.97.5.0")
+    compileOnly("com.griefcraft.lwc", "LWCX", "2.2.6")
+    compileOnly("com.sk89q.worldguard", "worldguard-bukkit", "7.0.0") {
+        exclude(module = "bukkit")
+    }
 }
 
 
