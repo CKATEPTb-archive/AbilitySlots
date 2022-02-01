@@ -29,13 +29,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.entity.AbilityTargetLiving;
 import ru.ckateptb.abilityslots.protection.*;
 import ru.ckateptb.tablecloth.cache.Cache;
 import ru.ckateptb.tablecloth.cache.Caffeine;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 import java.time.Duration;
 import java.util.*;
@@ -44,13 +44,14 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Getter
-@Service
+@Component
 public class ProtectionService implements Listener, Iterable<Protection> {
     private final AbilitySlotsConfig config;
     private final Set<Protection> protectionPlugins = new HashSet<>();
     // For optimize caching, we must use Block, because its location is always static without yaw and pitch
     private final Map<UUID, Cache<BlockPos, Boolean>> cache = new HashMap<>();
 
+    @Autowired
     public ProtectionService(AbilitySlotsConfig config) {
         this.config = config;
         register("WorldGuard", plugin -> new WorldGuardProtection(plugin, config));

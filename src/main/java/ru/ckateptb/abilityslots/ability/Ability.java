@@ -30,14 +30,14 @@ import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.collision.Collider;
-import ru.ckateptb.tablecloth.spring.SpringContext;
+import ru.ckateptb.tablecloth.ioc.IoC;
 
 import java.util.Collection;
 import java.util.Collections;
 
 @Getter
 public abstract class Ability {
-    protected final AbilityInstanceService instanceService = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+    protected final AbilityInstanceService instanceService = IoC.get(AbilityInstanceService.class);
     protected AbilityUser user;
     protected LivingEntity livingEntity;
     protected World world;
@@ -55,7 +55,7 @@ public abstract class Ability {
     }
 
     public AbilityInformation getInformation() {
-        AbilityService abilityService = SpringContext.getInstance().getBean(AbilityService.class);
+        AbilityService abilityService = IoC.get(AbilityService.class);
         AbilityInfo info = getClass().getAnnotation(AbilityInfo.class);
         return abilityService.getAbility(info.name());
     }

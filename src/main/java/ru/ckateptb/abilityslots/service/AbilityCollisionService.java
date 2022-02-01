@@ -17,13 +17,13 @@
 
 package ru.ckateptb.abilityslots.service;
 
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.AbilityCollisionResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.tablecloth.collision.Collider;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
+import ru.ckateptb.tablecloth.ioc.annotation.Scheduled;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,16 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
-@EnableScheduling
+@Component
 public class AbilityCollisionService {
     private final AbilityInstanceService abilityInstanceService;
 
+    @Autowired
     public AbilityCollisionService(AbilityInstanceService abilityInstanceService) {
         this.abilityInstanceService = abilityInstanceService;
     }
 
-    @Scheduled(fixedRate = 1)
+    @Scheduled(period = 1)
     public void update() {
         Collection<Ability> instances = abilityInstanceService.getInstances().stream()
                 .filter(ability -> ability.getInformation().isCollisionParticipant())

@@ -27,9 +27,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -41,6 +38,9 @@ import ru.ckateptb.abilityslots.storage.AbilitySlotsStorage;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 import ru.ckateptb.tablecloth.async.AsyncService;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
+import ru.ckateptb.tablecloth.ioc.annotation.Scheduled;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,8 +50,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Service
-@EnableScheduling
+@Component
 public class AbilityUserService implements Listener {
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final Map<LivingEntity, AbilityUser> users = new HashMap<>();
@@ -62,6 +61,7 @@ public class AbilityUserService implements Listener {
     private final AsyncService asyncService;
     private final ProtectionService protectionService;
 
+    @Autowired
     public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AsyncService asyncService, ProtectionService protectionService) {
         this.storage = storage;
         this.config = config;
@@ -87,7 +87,7 @@ public class AbilityUserService implements Listener {
         return users.get(livingEntity);
     }
 
-    @Scheduled(initialDelay = 5, fixedRate = 1)
+    @Scheduled(delay = 5, period = 1)
     public void update() {
         CompletableFuture.runAsync(() -> new CopyOnWriteArrayList<>(users.values()).forEach(abilityUser -> {
             if (abilityUser instanceof PlayerAbilityUser user) {
@@ -97,7 +97,7 @@ public class AbilityUserService implements Listener {
         }), executorService);
     }
 
-    @Scheduled(fixedRate = 20)
+    @Scheduled(period = 20)
     public void updatePassives() {
         Collection<AbilityInformation> passives = abilityService.getPassiveAbilities();
         for (AbilityInformation passive : passives) {
@@ -118,9 +118,9 @@ public class AbilityUserService implements Listener {
         }
     }
 
-    @Scheduled(fixedRate = 20)
+    @Scheduled(period = 20)
     public void regenEnergy() {
-        if(config.getCastPreventType() == AbilityCastPreventType.COOLDOWN) return;
+        if (config.getCastPreventType() == AbilityCastPreventType.COOLDOWN) return;
         for (AbilityUser user : users.values()) {
             user.addEnergy(config.getEnergyRegen());
         }

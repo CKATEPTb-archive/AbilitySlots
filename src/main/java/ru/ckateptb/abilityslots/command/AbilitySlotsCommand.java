@@ -24,10 +24,9 @@ import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.ClassUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
@@ -37,6 +36,8 @@ import ru.ckateptb.abilityslots.service.AbilityCategoryService;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 import ru.ckateptb.tablecloth.minedown.MineDown;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class AbilitySlotsCommand {
     private final AbilitySlotsConfig config;
     private final AbilitySlots plugin = AbilitySlots.getInstance();
 
+    @Autowired
     public AbilitySlotsCommand(AbilityService abilityService, AbilityCategoryService categoryService, AbilityUserService abilityUserService, AbilitySlotsConfig config) {
         this.abilityService = abilityService;
         this.categoryService = categoryService;
@@ -507,7 +509,7 @@ public class AbilitySlotsCommand {
     public <T> List<T> parseArguments(Class<T> type, Object[] args) {
         List<T> list = new ArrayList<>();
         for (Object arg : args) {
-            if (ClassUtils.isAssignable(type, arg.getClass())) {
+            if (ClassUtils.isAssignable(arg.getClass(), type)) {
                 list.add((T) arg);
             }
         }

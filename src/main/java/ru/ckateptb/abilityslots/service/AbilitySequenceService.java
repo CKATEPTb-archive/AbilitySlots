@@ -20,7 +20,6 @@ package ru.ckateptb.abilityslots.service;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -31,12 +30,14 @@ import ru.ckateptb.abilityslots.ability.sequence.Sequence;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Service
+@Component
 public class AbilitySequenceService implements Listener {
     private final Map<AbilityInformation, List<AbilityAction>> sequences = new HashMap<>();
     private final Map<AbilityUser, List<AbilityAction>> userActions = new HashMap<>();
@@ -44,6 +45,7 @@ public class AbilitySequenceService implements Listener {
     private final AbilitySlotsConfig config;
     private int maxSize = 0;
 
+    @Autowired
     public AbilitySequenceService(AbilityInstanceService abilityInstanceService, AbilitySlotsConfig config) {
         this.abilityInstanceService = abilityInstanceService;
         this.config = config;
@@ -70,7 +72,7 @@ public class AbilitySequenceService implements Listener {
             return ActivateResult.NOT_ACTIVATE;
         }
         actions.add(abilityAction);
-        if(config.isSequenceDebug()) {
+        if (config.isSequenceDebug()) {
             user.getEntity().sendMessage(String.format("%s > %s", abilityAction.ability().getSimpleName(), abilityAction.action().name()));
         }
         if (actions.size() > maxSize) actions.remove(0);

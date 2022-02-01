@@ -23,8 +23,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
@@ -33,8 +31,8 @@ import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
+import ru.ckateptb.tablecloth.ioc.IoC;
 import ru.ckateptb.tablecloth.minedown.MineDown;
-import ru.ckateptb.tablecloth.spring.SpringContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -104,9 +102,8 @@ public interface AbilityInformation extends Listener {
     @SneakyThrows
     @EventHandler
     default void on(YamlConfigLoadEvent event) {
-        AnnotationConfigApplicationContext context = SpringContext.getInstance();
-        if (event.getYamlConfig() != context.getBean(AbilitySlotsConfig.class)) return;
-        AbilityService abilityService = context.getBean(AbilityService.class);
+        if (event.getYamlConfig() != IoC.get(AbilitySlotsConfig.class)) return;
+        AbilityService abilityService = IoC.get(AbilityService.class);
         YamlConfiguration config = event.getBukkitConfig();
         setEnabled(config.getBoolean(getConfigPath("enabled"), isEnabled()));
         setDisplayName(config.getString(getConfigPath("name"), getDisplayName()));
@@ -119,8 +116,8 @@ public interface AbilityInformation extends Listener {
         if (isCollisionParticipant()) {
             CollisionParticipant destroyerInfo = getAbilityClass().getAnnotation(CollisionParticipant.class);
             List<String> def = Arrays.stream(destroyerInfo.destroyAbilities())
-                    .filter(destroyClass -> AnnotatedElementUtils.isAnnotated(destroyClass, AbilityInfo.class))
-                    .filter(destroyClass -> AnnotatedElementUtils.isAnnotated(destroyClass, CollisionParticipant.class))
+                    .filter(destroyClass -> destroyClass.isAnnotationPresent(AbilityInfo.class))
+                    .filter(destroyClass -> destroyClass.isAnnotationPresent(CollisionParticipant.class))
                     .map(destroyClass -> destroyClass.getAnnotation(AbilityInfo.class))
                     .map(AbilityInfo::name)
                     .toList();
@@ -136,7 +133,7 @@ public interface AbilityInformation extends Listener {
     @SneakyThrows
     @EventHandler
     default void on(YamlConfigSaveEvent event) {
-        if (event.getYamlConfig() != SpringContext.getInstance().getBean(AbilitySlotsConfig.class)) return;
+        if (event.getYamlConfig() != IoC.get(AbilitySlotsConfig.class)) return;
         event.set(getConfigPath("enabled"), isEnabled());
         event.set(getConfigPath("name"), getDisplayName());
         event.set(getConfigPath("description"), getDescription());
@@ -156,7 +153,7 @@ public interface AbilityInformation extends Listener {
     }
 
     default BaseComponent[] toBaseComponent() {
-        AbilitySlotsConfig config = SpringContext.getInstance().getBean(AbilitySlotsConfig.class);
+        AbilitySlotsConfig config = IoC.get(AbilitySlotsConfig.class);
         AbilityCategory category = getCategory();
         String prefix = config.isRespectCategoryPrefix() ? category.getPrefix() : "";
         StringBuilder builder = new StringBuilder();

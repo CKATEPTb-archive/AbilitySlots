@@ -27,7 +27,7 @@ import ru.ckateptb.abilityslots.entity.AbilityTargetLiving;
 import ru.ckateptb.abilityslots.predicate.AbilityConditional;
 import ru.ckateptb.abilityslots.service.AbilityInstanceService;
 import ru.ckateptb.abilityslots.slot.AbilitySlotContainer;
-import ru.ckateptb.tablecloth.spring.SpringContext;
+import ru.ckateptb.tablecloth.ioc.IoC;
 
 import java.util.Collection;
 import java.util.List;
@@ -78,11 +78,11 @@ public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
     boolean canUse(Location location);
 
     default Collection<? extends Ability> getActiveAbilities() {
-        return SpringContext.getInstance().getBean(AbilityInstanceService.class).getAbilityUserInstances(this);
+        return IoC.get(AbilityInstanceService.class).getAbilityUserInstances(this);
     }
 
     default Collection<? extends Ability> getActiveAbilities(Class<? extends Ability> type) {
-        return SpringContext.getInstance().getBean(AbilityInstanceService.class).getAbilityUserInstances(this, type);
+        return IoC.get(AbilityInstanceService.class).getAbilityUserInstances(this, type);
     }
 
     default Collection<? extends Ability> getPassives() {
@@ -90,15 +90,15 @@ public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
     }
 
     default boolean destroyAbility(Class<? extends Ability> type) {
-        return SpringContext.getInstance().getBean(AbilityInstanceService.class).destroyInstanceType(this, type);
+        return IoC.get(AbilityInstanceService.class).destroyInstanceType(this, type);
     }
 
     default void destroyAbility(Ability ability) {
-        SpringContext.getInstance().getBean(AbilityInstanceService.class).destroyInstance(this, ability);
+        IoC.get(AbilityInstanceService.class).destroyInstance(this, ability);
     }
 
     default void destroyAbilities() {
-        SpringContext.getInstance().getBean(AbilityInstanceService.class).destroyAbilityUserInstances(this);
+        IoC.get(AbilityInstanceService.class).destroyAbilityUserInstances(this);
     }
 
     default void setCooldown(Ability ability) {
@@ -118,52 +118,52 @@ public interface AbilityUser extends AbilityTargetLiving, EnergyHolder {
     }
 
     default void registerInstance(Ability instance) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         service.registerInstance(this, instance);
     }
 
     default void createPassives() {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         service.createPassives(this);
     }
 
     default void clearPassives() {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         service.clearPassives(this);
     }
 
     default boolean hasAbility(Class<? extends Ability> abilityType) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.hasAbility(this, abilityType);
     }
 
     default boolean hasAbility(AbilityInformation information) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.hasAbility(this, information.getAbilityClass());
     }
 
     default void destroyInstance(Ability ability) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         service.destroyInstance(this, ability);
     }
 
     default boolean destroyInstances(AbilityInformation information) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.destroyInstanceType(this, information);
     }
 
     default boolean destroyInstances(Class<? extends Ability> clazz) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.destroyInstanceType(this, clazz);
     }
 
     default List<Ability> getAbilityInstances() {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.getAbilityUserInstances(this);
     }
 
     default <T extends Ability> List<T> getAbilityInstances(Class<T> type) {
-        AbilityInstanceService service = SpringContext.getInstance().getBean(AbilityInstanceService.class);
+        AbilityInstanceService service = IoC.get(AbilityInstanceService.class);
         return service.getAbilityUserInstances(this, type);
     }
 }

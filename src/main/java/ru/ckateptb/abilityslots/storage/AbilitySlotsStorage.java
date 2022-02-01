@@ -21,9 +21,11 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Component;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
+import ru.ckateptb.tablecloth.ioc.annotation.PostConstruct;
 import ru.ckateptb.tablecloth.storage.hikari.HikariConfig;
 import ru.ckateptb.tablecloth.storage.hikari.HikariDataSource;
 import ru.ckateptb.tablecloth.storage.ormlite.dao.Dao;
@@ -32,7 +34,6 @@ import ru.ckateptb.tablecloth.storage.ormlite.jdbc.DataSourceConnectionSource;
 import ru.ckateptb.tablecloth.storage.ormlite.support.ConnectionSource;
 import ru.ckateptb.tablecloth.storage.ormlite.table.TableUtils;
 
-import javax.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -46,6 +47,7 @@ public class AbilitySlotsStorage implements AutoCloseable {
     private Dao<PlayerAbilityTable, String> playerAbilityTables;
     private Dao<PresetAbilityTable, String> presetAbilityTables;
 
+    @Autowired
     public AbilitySlotsStorage(AbilitySlotsConfig config) {
         this.config = config;
     }

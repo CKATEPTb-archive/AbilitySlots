@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bukkit.ChatColor;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
@@ -64,7 +63,7 @@ public class AnnotationBasedAbilityInformation implements AbilityInformation {
         this.canBindToSlot = abilityInfo.canBindToSlot();
         this.author = abilityInfo.author();
         this.activationMethods = abilityInfo.activationMethods();
-        this.collisionParticipant = AnnotatedElementUtils.isAnnotated(abilityClass, CollisionParticipant.class);
+        this.collisionParticipant = abilityClass.isAnnotationPresent(CollisionParticipant.class);
     }
 
     @Override

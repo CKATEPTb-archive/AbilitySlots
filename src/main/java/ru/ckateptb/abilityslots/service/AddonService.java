@@ -20,9 +20,7 @@ package ru.ckateptb.abilityslots.service;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ClassUtils;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.ClassUtils;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -31,6 +29,8 @@ import ru.ckateptb.abilityslots.ability.info.AnnotationBasedAbilityInformation;
 import ru.ckateptb.abilityslots.ability.sequence.Sequence;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.util.ClassPath;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +46,7 @@ import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
+@Component
 public class AddonService {
     private final AbilitySlots plugin = AbilitySlots.getInstance();
     private final List<Class<?>> loadedClasses = new ArrayList<>();
@@ -55,6 +55,7 @@ public class AddonService {
     private final AbilityService abilityService;
     private final String nameRegex = "[a-zA-Z]+";
 
+    @Autowired
     public AddonService(AbilityCategoryService abilityCategoryService, AbilitySequenceService abilitySequenceService, AbilityService abilityService) {
         this.abilityCategoryService = abilityCategoryService;
         this.abilitySequenceService = abilitySequenceService;
@@ -89,7 +90,7 @@ public class AddonService {
         }
         if (loadedClasses.isEmpty()) return;
         loadedClasses.forEach(cl -> {
-            if (ClassUtils.isAssignable(AbilityCategory.class, cl)) {
+            if (ClassUtils.isAssignable(cl, AbilityCategory.class)) {
                 List<Constructor<?>> constructors = Arrays.asList(cl.getConstructors());
                 constructors.removeIf(constructor -> constructor.getParameterCount() > 0);
                 if (constructors.isEmpty()) {
@@ -114,8 +115,8 @@ public class AddonService {
             }
         });
         loadedClasses.forEach(cl -> {
-            if (ClassUtils.isAssignable(Ability.class, cl)) {
-                if (AnnotatedElementUtils.isAnnotated(cl, AbilityInfo.class)) {
+            if (ClassUtils.isAssignable(cl, Ability.class)) {
+                if (cl.isAnnotationPresent(AbilityInfo.class)) {
                     List<Constructor<?>> constructors = Arrays.asList(cl.getConstructors());
                     constructors.removeIf(constructor -> constructor.getParameterCount() > 0);
                     if (constructors.isEmpty()) {
@@ -136,7 +137,7 @@ public class AddonService {
                                     category.registerAbility(ability);
                                     abilityService.registerAbility(ability);
                                     if (ability.isActivatedBy(ActivationMethod.SEQUENCE)) {
-                                        if (!AnnotatedElementUtils.isAnnotated(cl, Sequence.class)) {
+                                        if (!cl.isAnnotationPresent(Sequence.class)) {
                                             log.warn("Ability ({}) activate by SEQUENCE, but the developer made a mistake and did not add Sequence annotation, please pass this information to him", ability.getName());
                                         } else {
                                             abilitySequenceService.registerSequence(ability, cl.getAnnotation(Sequence.class));

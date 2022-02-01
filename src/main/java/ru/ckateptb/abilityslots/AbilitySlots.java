@@ -21,6 +21,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.service.AbilityCategoryService;
@@ -29,12 +30,12 @@ import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.service.AddonService;
 import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
-import ru.ckateptb.tablecloth.spring.plugin.SpringPlugin;
+import ru.ckateptb.tablecloth.ioc.IoC;
 
 //TODO Добавить собственные события
 //TODO Пересмотреть код, может что улучшить, добавить, оптимизировать
 //TODO Сделать Адон по мотивам Avatar (ProjectKorra), вынося необходимое в Tablecloth
-public final class AbilitySlots extends SpringPlugin {
+public final class AbilitySlots extends JavaPlugin {
     @Getter
     private static AbilitySlots instance;
     private AbilitySlotsConfig abilitySlotsConfig;
@@ -50,13 +51,13 @@ public final class AbilitySlots extends SpringPlugin {
 
     @Override
     public void onEnable() {
-        super.onEnable();
         this.pluginManager = Bukkit.getPluginManager();
-        this.categoryService = getContext().getBean(AbilityCategoryService.class);
-        this.abilityService = getContext().getBean(AbilityService.class);
-        this.abilitySlotsConfig = getContext().getBean(AbilitySlotsConfig.class);
-        this.addonService = getContext().getBean(AddonService.class);
-        this.abilityUserService = getContext().getBean(AbilityUserService.class);
+        IoC.init(this);
+        this.categoryService = IoC.get(AbilityCategoryService.class);
+        this.abilityService = IoC.get(AbilityService.class);
+        this.abilitySlotsConfig = IoC.get(AbilitySlotsConfig.class);
+        this.addonService = IoC.get(AddonService.class);
+        this.abilityUserService = IoC.get(AbilityUserService.class);
         this.reload();
     }
 

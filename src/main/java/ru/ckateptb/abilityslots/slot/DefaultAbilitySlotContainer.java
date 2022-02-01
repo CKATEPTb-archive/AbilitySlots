@@ -21,7 +21,7 @@ import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.service.AbilityService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
-import ru.ckateptb.tablecloth.spring.SpringContext;
+import ru.ckateptb.tablecloth.ioc.IoC;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class DefaultAbilitySlotContainer implements AbilitySlotContainer {
     public static DefaultAbilitySlotContainer fromString(String string) {
         DefaultAbilitySlotContainer container = new DefaultAbilitySlotContainer();
         String[] names = string.split("\\|");
-        AbilityService service = SpringContext.getInstance().getBean(AbilityService.class);
+        AbilityService service = IoC.get(AbilityService.class);
         for (int i = 1; i <= 9; i++) {
             if (names.length < i) break;
             AbilityInformation info = service.getAbility(names[i - 1]);

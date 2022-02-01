@@ -25,7 +25,7 @@ import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.config.AbilitySlotsConfig;
 import ru.ckateptb.tablecloth.config.YamlConfigLoadEvent;
 import ru.ckateptb.tablecloth.config.YamlConfigSaveEvent;
-import ru.ckateptb.tablecloth.spring.SpringContext;
+import ru.ckateptb.tablecloth.ioc.IoC;
 
 import java.util.Collection;
 
@@ -53,7 +53,7 @@ public interface AbilityCategory extends Listener {
     @SneakyThrows
     @EventHandler
     default void on(YamlConfigLoadEvent event) {
-        if (event.getYamlConfig() != SpringContext.getInstance().getBean(AbilitySlotsConfig.class)) return;
+        if (event.getYamlConfig() != IoC.get(AbilitySlotsConfig.class)) return;
         YamlConfiguration config = event.getBukkitConfig();
         setEnabled(config.getBoolean(getConfigPath("enabled"), isEnabled()));
         setDisplayName(config.getString(getConfigPath("name"), getDisplayName()));
@@ -64,7 +64,7 @@ public interface AbilityCategory extends Listener {
     @SneakyThrows
     @EventHandler
     default void on(YamlConfigSaveEvent event) {
-        if (event.getYamlConfig() != SpringContext.getInstance().getBean(AbilitySlotsConfig.class)) return;
+        if (event.getYamlConfig() != IoC.get(AbilitySlotsConfig.class)) return;
         event.set(getConfigPath("enabled"), isEnabled());
         event.set(getConfigPath("name"), getDisplayName());
         event.set(getConfigPath("prefix"), getPrefix());

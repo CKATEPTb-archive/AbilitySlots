@@ -22,10 +22,10 @@ import lombok.Setter;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.plugin.Plugin;
-import org.springframework.stereotype.Component;
 import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.tablecloth.config.ConfigField;
 import ru.ckateptb.tablecloth.config.YamlConfig;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 @Getter
 @Setter

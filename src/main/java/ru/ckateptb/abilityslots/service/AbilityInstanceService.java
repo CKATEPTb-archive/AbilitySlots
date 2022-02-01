@@ -21,11 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.bukkit.event.server.PluginDisableEvent;
+import ru.ckateptb.abilityslots.AbilitySlots;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -33,17 +30,20 @@ import ru.ckateptb.abilityslots.ability.enums.UpdateResult;
 import ru.ckateptb.abilityslots.ability.info.AbilityInformation;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
 import ru.ckateptb.abilityslots.user.AbilityUser;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
+import ru.ckateptb.tablecloth.ioc.annotation.Scheduled;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
-@EnableScheduling
+@Component
 @Slf4j
 public class AbilityInstanceService implements Listener {
     private final Map<AbilityUser, List<Ability>> instances = new HashMap<>();
     private final AbilityService abilityService;
 
+    @Autowired
     public AbilityInstanceService(AbilityService abilityService) {
         this.abilityService = abilityService;
     }
@@ -52,7 +52,7 @@ public class AbilityInstanceService implements Listener {
         instances.computeIfAbsent(user, (key) -> new ArrayList<>()).add(instance);
     }
 
-    @Scheduled(fixedRate = 1)
+    @Scheduled(period = 1)
     public void update() {
         Iterator<Map.Entry<AbilityUser, List<Ability>>> playerIterator = instances.entrySet().iterator();
         List<Ability> removed = new ArrayList<>();
@@ -235,8 +235,10 @@ public class AbilityInstanceService implements Listener {
         this.destroyAllInstances();
     }
 
-    @EventListener
-    public void handleContextRefreshEvent(ContextClosedEvent ignored) {
-        this.destroyAllInstances();
+    @EventHandler
+    public void on(PluginDisableEvent event) {
+        if(event.getPlugin().equals(AbilitySlots.getInstance())) {
+            this.destroyAllInstances();
+        }
     }
 }

@@ -7,23 +7,17 @@ plugins {
 }
 
 group = "ru.ckateptb"
-version = "1.2.2"
-var githubName = "AbilitySlots"
-var githubOwner = "CKATEPTb"
+version = "1.2.3"
 
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
-//    if (!isSnapshot()) {
-//        withJavadocJar()
-//    }
     withSourcesJar()
 }
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
@@ -39,7 +33,7 @@ dependencies {
 //    paperDevBundle("1.18.1-R0.1-SNAPSHOT")
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
-    compileOnly("ml.tablecloth:Tablecloth:master-SNAPSHOT")
+    compileOnly("ml.tablecloth:Tablecloth:ab65aa449b")
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
 
     // PROTECTION PLUGINS

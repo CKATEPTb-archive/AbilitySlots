@@ -28,7 +28,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
-import org.springframework.stereotype.Component;
 import ru.ckateptb.abilityslots.ability.Ability;
 import ru.ckateptb.abilityslots.ability.enums.ActivateResult;
 import ru.ckateptb.abilityslots.ability.enums.ActivationMethod;
@@ -41,17 +40,29 @@ import ru.ckateptb.abilityslots.service.AbilityUserService;
 import ru.ckateptb.abilityslots.user.AbilityUser;
 import ru.ckateptb.abilityslots.user.PlayerAbilityUser;
 import ru.ckateptb.tablecloth.collision.collider.RayCollider;
+import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
-public record AbilityHandler(AbilityUserService userService,
-                             AbilityService abilityService,
-                             AbilityInstanceService abilityInstanceService,
-                             AbilitySequenceService abilitySequenceService) implements Listener {
+public final class AbilityHandler implements Listener {
+    private final AbilityUserService userService;
+    private final AbilityService abilityService;
+    private final AbilityInstanceService abilityInstanceService;
+    private final AbilitySequenceService abilitySequenceService;
+
+    @Autowired
+    public AbilityHandler(AbilityUserService userService,
+                          AbilityService abilityService,
+                          AbilityInstanceService abilityInstanceService,
+                          AbilitySequenceService abilitySequenceService) {
+        this.userService = userService;
+        this.abilityService = abilityService;
+        this.abilityInstanceService = abilityInstanceService;
+        this.abilitySequenceService = abilitySequenceService;
+    }
+
     public void activateAbility(AbilityUser abilityUser, AbilityInformation ability, ActivationMethod method) {
         if (!(abilityUser instanceof PlayerAbilityUser user)
                 || ability == null
@@ -129,12 +140,12 @@ public record AbilityHandler(AbilityUserService userService,
         if (user == null) return;
         if (event.getHand() == EquipmentSlot.HAND) {
             Action action = event.getAction();
-            if(action == Action.RIGHT_CLICK_AIR) {
-                if(!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK))) {
+            if (action == Action.RIGHT_CLICK_AIR) {
+                if (!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK))) {
                     handleAbilities(user, ActivationMethod.RIGHT_CLICK);
                 }
-            } else if(action == Action.RIGHT_CLICK_BLOCK) {
-                if(!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_BLOCK))) {
+            } else if (action == Action.RIGHT_CLICK_BLOCK) {
+                if (!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_BLOCK))) {
                     handleAbilities(user, ActivationMethod.RIGHT_CLICK_BLOCK);
                 }
             }
@@ -146,7 +157,7 @@ public record AbilityHandler(AbilityUserService userService,
         Player player = event.getPlayer();
         AbilityUser user = userService.getAbilityPlayer(player);
         if (user == null || event.getHand() != EquipmentSlot.HAND) return;
-        if(!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY))) {
+        if (!isActivate(abilitySequenceService.registerAction(user, SequenceAction.RIGHT_CLICK_ENTITY))) {
             handleAbilities(user, ActivationMethod.RIGHT_CLICK_ENTITY);
         }
     }
@@ -156,7 +167,7 @@ public record AbilityHandler(AbilityUserService userService,
         Player player = event.getPlayer();
         AbilityUser user = userService.getAbilityPlayer(player);
         if (user == null) return;
-        if(!isActivate(abilitySequenceService.registerAction(user, SequenceAction.HAND_SWAP))) {
+        if (!isActivate(abilitySequenceService.registerAction(user, SequenceAction.HAND_SWAP))) {
             handleAbilities(user, ActivationMethod.HAND_SWAP);
         }
     }
@@ -164,4 +175,46 @@ public record AbilityHandler(AbilityUserService userService,
     private boolean isActivate(ActivateResult result) {
         return result == ActivateResult.ACTIVATE;
     }
+
+    public AbilityUserService userService() {
+        return userService;
+    }
+
+    public AbilityService abilityService() {
+        return abilityService;
+    }
+
+    public AbilityInstanceService abilityInstanceService() {
+        return abilityInstanceService;
+    }
+
+    public AbilitySequenceService abilitySequenceService() {
+        return abilitySequenceService;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (AbilityHandler) obj;
+        return Objects.equals(this.userService, that.userService) &&
+                Objects.equals(this.abilityService, that.abilityService) &&
+                Objects.equals(this.abilityInstanceService, that.abilityInstanceService) &&
+                Objects.equals(this.abilitySequenceService, that.abilitySequenceService);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userService, abilityService, abilityInstanceService, abilitySequenceService);
+    }
+
+    @Override
+    public String toString() {
+        return "AbilityHandler[" +
+                "userService=" + userService + ", " +
+                "abilityService=" + abilityService + ", " +
+                "abilityInstanceService=" + abilityInstanceService + ", " +
+                "abilitySequenceService=" + abilitySequenceService + ']';
+    }
+
 }

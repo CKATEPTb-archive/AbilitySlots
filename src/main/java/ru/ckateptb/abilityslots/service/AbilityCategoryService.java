@@ -21,16 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.springframework.stereotype.Service;
 import ru.ckateptb.abilityslots.category.AbilityCategory;
 import ru.ckateptb.abilityslots.event.AbilitySlotsReloadEvent;
+import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Component
 public class AbilityCategoryService implements Listener {
     private final Map<String, AbilityCategory> categories = new HashMap<>();
 
