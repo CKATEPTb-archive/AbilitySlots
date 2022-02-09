@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 public class AbilityCollisionService {
     private final AbilityInstanceService abilityInstanceService;
 
-    @Autowired
     public AbilityCollisionService(AbilityInstanceService abilityInstanceService) {
         this.abilityInstanceService = abilityInstanceService;
     }

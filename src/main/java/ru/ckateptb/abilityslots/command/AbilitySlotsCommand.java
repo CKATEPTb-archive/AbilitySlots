@@ -54,7 +54,6 @@ public class AbilitySlotsCommand {
     private final AbilitySlotsConfig config;
     private final AbilitySlots plugin = AbilitySlots.getInstance();
 
-    @Autowired
     public AbilitySlotsCommand(AbilityService abilityService, AbilityCategoryService categoryService, AbilityUserService abilityUserService, AbilitySlotsConfig config) {
         this.abilityService = abilityService;
         this.categoryService = categoryService;

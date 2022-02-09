@@ -55,7 +55,6 @@ public class AddonService {
     private final AbilityService abilityService;
     private final String nameRegex = "[a-zA-Z]+";
 
-    @Autowired
     public AddonService(AbilityCategoryService abilityCategoryService, AbilitySequenceService abilitySequenceService, AbilityService abilityService) {
         this.abilityCategoryService = abilityCategoryService;
         this.abilitySequenceService = abilitySequenceService;

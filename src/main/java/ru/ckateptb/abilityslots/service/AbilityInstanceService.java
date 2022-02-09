@@ -43,7 +43,6 @@ public class AbilityInstanceService implements Listener {
     private final Map<AbilityUser, List<Ability>> instances = new HashMap<>();
     private final AbilityService abilityService;
 
-    @Autowired
     public AbilityInstanceService(AbilityService abilityService) {
         this.abilityService = abilityService;
     }

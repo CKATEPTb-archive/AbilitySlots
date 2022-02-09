@@ -52,7 +52,6 @@ public final class AbilityHandler implements Listener {
     private final AbilityInstanceService abilityInstanceService;
     private final AbilitySequenceService abilitySequenceService;
 
-    @Autowired
     public AbilityHandler(AbilityUserService userService,
                           AbilityService abilityService,
                           AbilityInstanceService abilityInstanceService,

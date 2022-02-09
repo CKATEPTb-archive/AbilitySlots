@@ -45,7 +45,6 @@ public class AbilitySequenceService implements Listener {
     private final AbilitySlotsConfig config;
     private int maxSize = 0;
 
-    @Autowired
     public AbilitySequenceService(AbilityInstanceService abilityInstanceService, AbilitySlotsConfig config) {
         this.abilityInstanceService = abilityInstanceService;
         this.config = config;

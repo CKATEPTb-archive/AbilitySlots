@@ -34,7 +34,6 @@ import ru.ckateptb.abilityslots.entity.AbilityTargetLiving;
 import ru.ckateptb.abilityslots.protection.*;
 import ru.ckateptb.tablecloth.cache.Cache;
 import ru.ckateptb.tablecloth.cache.Caffeine;
-import ru.ckateptb.tablecloth.ioc.annotation.Autowired;
 import ru.ckateptb.tablecloth.ioc.annotation.Component;
 
 import java.time.Duration;
@@ -51,7 +50,6 @@ public class ProtectionService implements Listener, Iterable<Protection> {
     // For optimize caching, we must use Block, because its location is always static without yaw and pitch
     private final Map<UUID, Cache<BlockPos, Boolean>> cache = new HashMap<>();
 
-    @Autowired
     public ProtectionService(AbilitySlotsConfig config) {
         this.config = config;
         register("WorldGuard", plugin -> new WorldGuardProtection(plugin, config));

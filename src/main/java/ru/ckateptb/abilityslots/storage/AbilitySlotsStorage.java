@@ -47,7 +47,6 @@ public class AbilitySlotsStorage implements AutoCloseable {
     private Dao<PlayerAbilityTable, String> playerAbilityTables;
     private Dao<PresetAbilityTable, String> presetAbilityTables;
 
-    @Autowired
     public AbilitySlotsStorage(AbilitySlotsConfig config) {
         this.config = config;
     }

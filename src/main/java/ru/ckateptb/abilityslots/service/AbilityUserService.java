@@ -61,7 +61,6 @@ public class AbilityUserService implements Listener {
     private final AsyncService asyncService;
     private final ProtectionService protectionService;
 
-    @Autowired
     public AbilityUserService(AbilitySlotsStorage storage, AbilitySlotsConfig config, AbilityService abilityService, AbilityInstanceService abilityInstanceService, AsyncService asyncService, ProtectionService protectionService) {
         this.storage = storage;
         this.config = config;
